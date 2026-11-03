@@ -143,6 +143,11 @@ body{margin:0;background:#1a2a3a;font-family:'Segoe UI',system-ui,sans-serif;ove
 .icon-upload-preview{display:flex;align-items:center;gap:10px;margin:10px 0}
 .icon-preview-box{width:48px;height:48px;background:#2c3e50;border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .type-icon-input{display:flex;gap:8px;align-items:center}
+.preset-icons-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 10px 0; }
+.preset-icon-item { background: #2c3e50; border-radius: 8px; padding: 4px; cursor: pointer; border: 2px solid transparent; display: flex; justify-content: center; align-items: center; height: 40px; }
+.preset-icon-item:hover { border-color: #FFD966; }
+.preset-icon-item.selected { border-color: #2ecc71; background: #1e2a36; }
+.preset-icon-item img { width: 100%; height: 100%; object-fit: contain; }
 .login-overlay,.casino-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.92);backdrop-filter:blur(12px);z-index:9999;display:flex;align-items:center;justify-content:center;color:#fff;padding:20px;box-sizing:border-box}
 .casino-overlay{display:none}
 .login-container{background:#1e2a36;padding:32px;border-radius:20px;width:100%;max-width:360px;border:1px solid rgba(255,215,150,.3)}
@@ -262,7 +267,28 @@ body{margin:0;background:#1a2a3a;font-family:'Segoe UI',system-ui,sans-serif;ove
 
 <div id="rotatePanel" class="rotate-panel"><h4>🔄 调整旋转角度</h4><div class="slider-container"><input type="range" id="angleSlider" min="0" max="360" step="1" value="0"><span class="angle-value" id="angleValue">0°</span></div><div class="preset-angles"></div><button class="close-panel" id="closeRotatePanel">关闭</button></div>
 <div id="addTableModal" class="modal"><div class="modal-content"><h3>添加新桌子</h3><input type="text" id="newTableId" placeholder="桌号"><input type="text" id="newZoneCode" placeholder="场区代号"><select id="newTableType"></select><div class="icon-upload-preview"><div class="icon-preview-box" id="newIconPreview"></div><button type="button" id="uploadIconBtn" style="background:#2c3e50;">📁 上传图标</button><button type="button" id="clearIconBtn" style="background:#c0392b;">✖ 清除</button></div><input type="file" id="iconFileInput" accept="image/*" style="display:none;"><button id="confirmAddTable">确认添加</button><button id="cancelAddTable">取消</button></div></div>
-<div id="newTypeModal" class="modal"><div class="modal-content"><h3>新增桌型</h3><input type="text" id="newTypeCode" placeholder="代码"><input type="text" id="newTypeName" placeholder="名称"><div class="type-icon-input"><input type="text" id="newTypeEmoji" placeholder="Emoji"><button type="button" id="newTypeUploadIconBtn">📁 上传</button></div><div class="icon-preview-box" id="newTypeIconPreview"></div><input type="file" id="newTypeIconFile" accept="image/*" style="display:none;"><button id="confirmNewType">确认新增</button><button id="cancelNewType">取消</button></div></div>
+
+<!-- 新增桌型 Modal 優化：加入預設圖示選擇 -->
+<div id="newTypeModal" class="modal">
+  <div class="modal-content">
+    <h3>新增桌型</h3>
+    <input type="text" id="newTypeCode" placeholder="代码 (如: PK)">
+    <input type="text" id="newTypeName" placeholder="名称 (如: 扑克)">
+    
+    <div style="margin-top: 10px; font-size: 0.85rem; color:#aaa;">选择预设图标：</div>
+    <div class="preset-icons-grid" id="presetIconsGrid"></div>
+
+    <div class="type-icon-input" style="margin-top:10px;">
+      <span style="font-size:0.85rem; color:#aaa;">或自定义上传：</span>
+      <button type="button" id="newTypeUploadIconBtn" style="width:auto; padding:4px 12px;">📁 上传</button>
+    </div>
+    <div class="icon-preview-box" id="newTypeIconPreview" style="display:none; margin-top:10px;"></div>
+    <input type="file" id="newTypeIconFile" accept="image/*" style="display:none;">
+    
+    <button id="confirmNewType">确认新增</button>
+    <button id="cancelNewType" style="background:#2c3e50;">取消</button>
+  </div>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
@@ -283,8 +309,34 @@ const firebaseConfig = {
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
 
+// ========== 預設 SVG 圖示 (8半圓 + 2長方，共10種顏色) ==========
+const PRESET_ICONS = {
+    red_semi: `data:image/svg+xml;utf8,<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg"><path d="M 10 110 A 90 90 0 0 1 190 110 Z" fill="%23e74c3c" stroke="%23fff" stroke-width="4"/><path d="M 25 110 A 75 75 0 0 1 175 110 Z" fill="%23c0392b"/><circle cx="30" cy="110" r="5" fill="%23fff"/><circle cx="60" cy="60" r="5" fill="%23fff"/><circle cx="100" cy="45" r="5" fill="%23fff"/><circle cx="140" cy="60" r="5" fill="%23fff"/><circle cx="170" cy="110" r="5" fill="%23fff"/></svg>`,
+    blue_semi: `data:image/svg+xml;utf8,<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg"><path d="M 10 110 A 90 90 0 0 1 190 110 Z" fill="%233498db" stroke="%23fff" stroke-width="4"/><path d="M 25 110 A 75 75 0 0 1 175 110 Z" fill="%232980b9"/><circle cx="30" cy="110" r="5" fill="%23fff"/><circle cx="60" cy="60" r="5" fill="%23fff"/><circle cx="100" cy="45" r="5" fill="%23fff"/><circle cx="140" cy="60" r="5" fill="%23fff"/><circle cx="170" cy="110" r="5" fill="%23fff"/></svg>`,
+    green_semi: `data:image/svg+xml;utf8,<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg"><path d="M 10 110 A 90 90 0 0 1 190 110 Z" fill="%232ecc71" stroke="%23fff" stroke-width="4"/><path d="M 25 110 A 75 75 0 0 1 175 110 Z" fill="%2327ae60"/><circle cx="30" cy="110" r="5" fill="%23fff"/><circle cx="60" cy="60" r="5" fill="%23fff"/><circle cx="100" cy="45" r="5" fill="%23fff"/><circle cx="140" cy="60" r="5" fill="%23fff"/><circle cx="170" cy="110" r="5" fill="%23fff"/></svg>`,
+    yellow_semi: `data:image/svg+xml;utf8,<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg"><path d="M 10 110 A 90 90 0 0 1 190 110 Z" fill="%23f1c40f" stroke="%23fff" stroke-width="4"/><path d="M 25 110 A 75 75 0 0 1 175 110 Z" fill="%23f39c12"/><circle cx="30" cy="110" r="5" fill="%23fff"/><circle cx="60" cy="60" r="5" fill="%23fff"/><circle cx="100" cy="45" r="5" fill="%23fff"/><circle cx="140" cy="60" r="5" fill="%23fff"/><circle cx="170" cy="110" r="5" fill="%23fff"/></svg>`,
+    purple_semi: `data:image/svg+xml;utf8,<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg"><path d="M 10 110 A 90 90 0 0 1 190 110 Z" fill="%239b59b6" stroke="%23fff" stroke-width="4"/><path d="M 25 110 A 75 75 0 0 1 175 110 Z" fill="%238e44ad"/><circle cx="30" cy="110" r="5" fill="%23fff"/><circle cx="60" cy="60" r="5" fill="%23fff"/><circle cx="100" cy="45" r="5" fill="%23fff"/><circle cx="140" cy="60" r="5" fill="%23fff"/><circle cx="170" cy="110" r="5" fill="%23fff"/></svg>`,
+    orange_semi: `data:image/svg+xml;utf8,<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg"><path d="M 10 110 A 90 90 0 0 1 190 110 Z" fill="%23e67e22" stroke="%23fff" stroke-width="4"/><path d="M 25 110 A 75 75 0 0 1 175 110 Z" fill="%23d35400"/><circle cx="30" cy="110" r="5" fill="%23fff"/><circle cx="60" cy="60" r="5" fill="%23fff"/><circle cx="100" cy="45" r="5" fill="%23fff"/><circle cx="140" cy="60" r="5" fill="%23fff"/><circle cx="170" cy="110" r="5" fill="%23fff"/></svg>`,
+    teal_semi: `data:image/svg+xml;utf8,<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg"><path d="M 10 110 A 90 90 0 0 1 190 110 Z" fill="%231abc9c" stroke="%23fff" stroke-width="4"/><path d="M 25 110 A 75 75 0 0 1 175 110 Z" fill="%2316a085"/><circle cx="30" cy="110" r="5" fill="%23fff"/><circle cx="60" cy="60" r="5" fill="%23fff"/><circle cx="100" cy="45" r="5" fill="%23fff"/><circle cx="140" cy="60" r="5" fill="%23fff"/><circle cx="170" cy="110" r="5" fill="%23fff"/></svg>`,
+    pink_semi: `data:image/svg+xml;utf8,<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg"><path d="M 10 110 A 90 90 0 0 1 190 110 Z" fill="%23fd79a8" stroke="%23fff" stroke-width="4"/><path d="M 25 110 A 75 75 0 0 1 175 110 Z" fill="%23e84393"/><circle cx="30" cy="110" r="5" fill="%23fff"/><circle cx="60" cy="60" r="5" fill="%23fff"/><circle cx="100" cy="45" r="5" fill="%23fff"/><circle cx="140" cy="60" r="5" fill="%23fff"/><circle cx="170" cy="110" r="5" fill="%23fff"/></svg>`,
+    dark_rect: `data:image/svg+xml;utf8,<svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="10" width="180" height="80" rx="20" fill="%232c3e50" stroke="%23fff" stroke-width="4"/><rect x="20" y="20" width="160" height="60" rx="15" fill="%231a252f"/><circle cx="15" cy="30" r="5" fill="%23fff"/><circle cx="15" cy="70" r="5" fill="%23fff"/><circle cx="185" cy="30" r="5" fill="%23fff"/><circle cx="185" cy="70" r="5" fill="%23fff"/><circle cx="60" cy="15" r="5" fill="%23fff"/><circle cx="140" cy="15" r="5" fill="%23fff"/><circle cx="60" cy="85" r="5" fill="%23fff"/><circle cx="140" cy="85" r="5" fill="%23fff"/></svg>`,
+    gold_rect: `data:image/svg+xml;utf8,<svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="10" width="180" height="80" rx="20" fill="%23f39c12" stroke="%23fff" stroke-width="4"/><rect x="20" y="20" width="160" height="60" rx="15" fill="%23d68910"/><circle cx="15" cy="30" r="5" fill="%23fff"/><circle cx="15" cy="70" r="5" fill="%23fff"/><circle cx="185" cy="30" r="5" fill="%23fff"/><circle cx="185" cy="70" r="5" fill="%23fff"/><circle cx="60" cy="15" r="5" fill="%23fff"/><circle cx="140" cy="15" r="5" fill="%23fff"/><circle cx="60" cy="85" r="5" fill="%23fff"/><circle cx="140" cy="85" r="5" fill="%23fff"/></svg>`
+};
+
 // ========== 常量与状态 ==========
-const DEFAULT_TABLE_TYPES = { BA:{name:'百家乐',emoji:'🎲'}, BJ:{name:'二十一点',emoji:'🃏'}, SSB:{name:'骰宝',emoji:'🎰'}, CS:{name:'加勒比海',emoji:'🌊'}, AR:{name:'轮盘',emoji:'🎡'}, TCB:{name:'三公百家乐',emoji:'🃏'}, TCP:{name:'富贵三公',emoji:'👑'}, FTC:{name:'富贵三宝',emoji:'💎'}, NCBA:{name:'免佣百家乐',emoji:'💰'}, FT:{name:'番摊',emoji:'🎲'}, PG:{name:'牌九',emoji:'🀄️'} };
+const DEFAULT_TABLE_TYPES = { 
+    BA:{name:'百家乐', emoji:'🎲', icon:PRESET_ICONS.red_semi}, 
+    BJ:{name:'二十一点', emoji:'🃏', icon:PRESET_ICONS.blue_semi}, 
+    SSB:{name:'骰宝', emoji:'🎰', icon:PRESET_ICONS.green_semi}, 
+    CS:{name:'加勒比海', emoji:'🌊', icon:PRESET_ICONS.purple_semi}, 
+    AR:{name:'轮盘', emoji:'🎡', icon:PRESET_ICONS.dark_rect}, 
+    TCB:{name:'三公百家乐', emoji:'🃏', icon:PRESET_ICONS.yellow_semi}, 
+    TCP:{name:'富贵三公', emoji:'👑', icon:PRESET_ICONS.teal_semi}, 
+    FTC:{name:'富贵三宝', emoji:'💎', icon:PRESET_ICONS.pink_semi}, 
+    NCBA:{name:'免佣百家乐', emoji:'💰', icon:PRESET_ICONS.orange_semi}, 
+    FT:{name:'番摊', emoji:'🎲', icon:PRESET_ICONS.gold_rect}, 
+    PG:{name:'牌九', emoji:'🀄️', icon:PRESET_ICONS.dark_rect} 
+};
 let TABLE_TYPES = { ...DEFAULT_TABLE_TYPES };
 let customTypes = {};
 let TYPE_LIST = Object.keys(TABLE_TYPES);
@@ -294,7 +346,7 @@ let floorData = {}, availableTables = {}, decorElements = [];
 let selectedTableIds = new Set();
 let currentZoom = 1.0, currentInfoPanel = null, currentRotatingTable = null, rotateTimeout = null;
 let nextDecorId = 100;
-let tempCustomIcon = null, newTypeTempIcon = null;
+let tempCustomIcon = null, newTypeTempIcon = null, selectedPresetIcon = null;
 let casinoListUnsub = null, casinoDataUnsub = null, bgImageUnsub = null;
 let historyStack = [], historyIndex = -1;
 const MAX_HISTORY = 20;
@@ -351,7 +403,6 @@ $('logoutBtn').onclick = () => {
   if(casinoListUnsub) { casinoListUnsub(); casinoListUnsub = null; }
 };
 
-// 启动时检查是否已登录
 if (sessionStorage.getItem('loggedIn') === 'true') {
   loginOverlay.style.display = 'none';
   casinoOverlay.style.display = 'flex';
@@ -427,6 +478,7 @@ function getTableIconHtml(table){
   if(!info) return '<div style="font-size:1.5rem;">❓</div>';
   if(table.customIcon) return `<img src="${table.customIcon}">`;
   if(info.customIcon) return `<img src="${info.customIcon}">`;
+  if(info.icon) return `<img src="${info.icon}">`;
   return `<div style="font-size:1.5rem;">${info.emoji||'🎲'}</div>`;
 }
 
@@ -862,6 +914,26 @@ function refreshAllTypeSelects(){
   newTableTypeSelect.innerHTML = TYPE_LIST.map(t => `<option value="${t}">${t} - ${TABLE_TYPES[t]?.name||t}</option>`).join('');
   updateTableList();
 }
+
+function initPresetIconsGrid() {
+  const grid = $('presetIconsGrid');
+  grid.innerHTML = '';
+  Object.keys(PRESET_ICONS).forEach(key => {
+    const div = document.createElement('div');
+    div.className = 'preset-icon-item';
+    div.innerHTML = `<img src="${PRESET_ICONS[key]}">`;
+    div.onclick = () => {
+      document.querySelectorAll('.preset-icon-item').forEach(el => el.classList.remove('selected'));
+      div.classList.add('selected');
+      selectedPresetIcon = PRESET_ICONS[key];
+      newTypeTempIcon = null;
+      newTypeIconPreview.innerHTML = '';
+      newTypeIconPreview.style.display = 'none';
+    };
+    grid.appendChild(div);
+  });
+}
+
 async function addNewTableType(){
   let code = newTypeCodeInput.value.trim().toUpperCase();
   if(!code){ alert('请输入代码'); return; }
@@ -869,9 +941,12 @@ async function addNewTableType(){
   const name = newTypeNameInput.value.trim();
   if(!name){ alert('请输入名称'); return; }
   const emoji = newTypeEmojiInput.value.trim() || '🎲';
-  await set(ref(db, `customTypes/${code}`), { name, emoji, customIcon: newTypeTempIcon || null });
+  
+  const iconToUse = newTypeTempIcon || selectedPresetIcon || null;
+  
+  await set(ref(db, `customTypes/${code}`), { name, emoji, customIcon: iconToUse });
   newTypeModal.style.display = 'none';
-  newTypeCodeInput.value = ''; newTypeNameInput.value = ''; newTypeEmojiInput.value = ''; newTypeTempIcon = null; newTypeIconPreview.innerHTML = '';
+  newTypeCodeInput.value = ''; newTypeNameInput.value = ''; newTypeEmojiInput.value = ''; newTypeTempIcon = null; selectedPresetIcon = null; newTypeIconPreview.innerHTML = '';
   showToast('桌型已新增');
 }
 
@@ -1073,9 +1148,30 @@ function initUI(){
   $('uploadIconBtn').onclick = () => iconFileInput.click();
   $('clearIconBtn').onclick = () => { tempCustomIcon=null; newIconPreview.innerHTML=''; };
   iconFileInput.onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { tempCustomIcon = ev.target.result; newIconPreview.innerHTML = `<img src="${tempCustomIcon}" style="max-width:100%;max-height:100%;">`; }; r.readAsDataURL(f); };
-  $('newTypeBtn').onclick = () => newTypeModal.style.display='flex';
+  
+  // 初始化预设图标网格
+  initPresetIconsGrid();
+
+  $('newTypeBtn').onclick = () => { 
+      newTypeModal.style.display='flex'; 
+      document.querySelectorAll('.preset-icon-item').forEach(el => el.classList.remove('selected'));
+      selectedPresetIcon = null;
+  };
+  
   $('newTypeUploadIconBtn').onclick = () => newTypeIconFile.click();
-  newTypeIconFile.onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { newTypeTempIcon = ev.target.result; newTypeIconPreview.innerHTML = `<img src="${newTypeTempIcon}" style="max-width:100%;max-height:100%;">`; }; r.readAsDataURL(f); };
+  newTypeIconFile.onchange = e => { 
+    const f = e.target.files[0]; if(!f) return; 
+    const r = new FileReader(); 
+    r.onload = ev => { 
+      newTypeTempIcon = ev.target.result; 
+      newTypeIconPreview.innerHTML = `<img src="${newTypeTempIcon}" style="max-width:100%;max-height:100%;">`; 
+      newTypeIconPreview.style.display = 'flex';
+      document.querySelectorAll('.preset-icon-item').forEach(el => el.classList.remove('selected'));
+      selectedPresetIcon = null;
+    }; 
+    r.readAsDataURL(f); 
+  };
+  
   $('confirmNewType').onclick = addNewTableType;
   $('cancelNewType').onclick = () => newTypeModal.style.display='none';
   window.onclick = e => { if(e.target===addTableModal) addTableModal.style.display='none'; if(e.target===newTypeModal) newTypeModal.style.display='none'; };
