@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>娱乐场 Floor Plan | 多娱乐场 · 云端同步</title>
+<title>娛樂場 Floor Plan | 多娛樂場 · 雲端同步</title>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
 <style>
@@ -182,10 +182,10 @@ body{margin:0;background:#1a2a3a;font-family:'Segoe UI',system-ui,sans-serif;ove
 <body>
 <div id="loginOverlay" class="login-overlay">
   <div class="login-container">
-    <h2>🎲 娱乐场 Floor Plan</h2>
-    <p style="color:#aaa;font-size:.85rem;">请登入以继续</p>
-    <div class="form-group"><label>用户名</label><input type="text" id="loginUser" placeholder="请输入用户名" autocomplete="username" value="admin"></div>
-    <div class="form-group"><label>密码</label><input type="password" id="loginPwd" placeholder="••••••••" autocomplete="current-password"></div>
+    <h2>🎲 娛樂場 Floor Plan</h2>
+    <p style="color:#aaa;font-size:.85rem;">請登入以繼續</p>
+    <div class="form-group"><label>用戶名</label><input type="text" id="loginUser" placeholder="請輸入用戶名" autocomplete="username" value="admin"></div>
+    <div class="form-group"><label>密碼</label><input type="password" id="loginPwd" placeholder="••••••••" autocomplete="current-password"></div>
     <button id="loginBtn" class="login-btn">登入</button>
     <p id="loginError" class="login-error"></p>
   </div>
@@ -194,13 +194,13 @@ body{margin:0;background:#1a2a3a;font-family:'Segoe UI',system-ui,sans-serif;ove
 <div id="casinoOverlay" class="casino-overlay">
   <div class="casino-container">
     <div class="casino-header">
-      <h2>🏢 选择娱乐场</h2>
+      <h2>🏢 選擇娛樂場</h2>
       <div><span id="userLabel" class="user-label">Admin</span><button id="logoutBtn" class="logout-btn" title="登出">🚪</button></div>
     </div>
     <div id="casinoList" class="casino-list"></div>
     <div class="casino-actions">
-      <button id="createCasinoBtn" class="create-casino-btn">➕ 新增娱乐场</button>
-      <button id="devModeBtn" class="dev-mode-btn">⚙️ 开发者模式</button>
+      <button id="createCasinoBtn" class="create-casino-btn">➕ 新增娛樂場</button>
+      <button id="devModeBtn" class="dev-mode-btn">⚙️ 開發者模式</button>
     </div>
   </div>
 </div>
@@ -210,45 +210,45 @@ body{margin:0;background:#1a2a3a;font-family:'Segoe UI',system-ui,sans-serif;ove
   <div class="sidebar" id="sidebar">
     <div style="padding:0 16px;color:#FFD966;font-size:.75rem;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
       <span>🏢 <span id="currentCasinoLabel"></span></span>
-      <button id="switchCasinoBtn" style="background:#8e44ad;border:none;color:#fff;padding:4px 10px;border-radius:20px;font-size:.7rem;cursor:pointer;">切换</button>
+      <button id="switchCasinoBtn" style="background:#8e44ad;border:none;color:#fff;padding:4px 10px;border-radius:20px;font-size:.7rem;cursor:pointer;">切換</button>
     </div>
     <div class="floor-tabs" id="floorTabsContainer"></div>
     <div class="collapsible-section">
-      <div class="collapsible-header" id="collapsibleHeader"><span>📐 布置工具</span><span class="collapsible-icon" id="collapseIcon">▼</span></div>
+      <div class="collapsible-header" id="collapsibleHeader"><span>📐 佈置工具</span><span class="collapsible-icon" id="collapseIcon">▼</span></div>
       <div class="collapsible-content" id="collapsibleContent">
-        <div class="layout-tip">💡 选中桌子后使用对齐/分布功能</div>
+        <div class="layout-tip">💡 選中桌子後使用對齊/分佈功能</div>
         <div class="layout-buttons">
-          <button class="layout-btn" id="alignLeft">⬅️ 左对齐</button>
-          <button class="layout-btn" id="alignRight">➡️ 右对齐</button>
-          <button class="layout-btn" id="alignCenterH">⬅️➡️ 水平居中</button>
+          <button class="layout-btn" id="alignLeft">⬅️ 左對齊</button>
+          <button class="layout-btn" id="alignRight">➡️ 右對齊</button>
+          <button class="layout-btn" id="alignCenterH">⬅️➡️ 水準居中</button>
           <button class="layout-btn" id="alignCenterV">⬆️⬇️ 垂直居中</button>
-          <button class="layout-btn" id="distributeHoriz">↔️ 水平等距</button>
+          <button class="layout-btn" id="distributeHoriz">↔️ 水準等距</button>
           <button class="layout-btn" id="distributeVert">↕️ 垂直等距</button>
         </div>
-        <div class="clear-btn-inside"><button class="tool-btn danger" id="clearBtn">🗑️ 清空布局 (当前楼层)</button></div>
+        <div class="clear-btn-inside"><button class="tool-btn danger" id="clearBtn">🗑️ 清空佈局 (當前樓層)</button></div>
       </div>
     </div>
     <div class="toolbar">
-      <button class="tool-btn undo" id="undoBtn">↩️ 撤销</button>
+      <button class="tool-btn undo" id="undoBtn">↩️ 撤銷</button>
       <button class="tool-btn add" id="addTableBtn">➕ 添加桌子</button>
       <button class="tool-btn new-type" id="newTypeBtn">✨ 新增桌型</button>
-      <button class="tool-btn excel" id="excelImportBtn">📊 导入 Excel</button>
-      <button class="tool-btn load" id="loadArchiveBtn">📂 加载存档</button>
-      <button class="tool-btn decor" id="uploadDecorBtn">🖼️ 上传装饰</button>
+      <button class="tool-btn excel" id="excelImportBtn">📊 導入 Excel</button>
+      <button class="tool-btn load" id="loadArchiveBtn">📂 載入存檔</button>
+      <button class="tool-btn decor" id="uploadDecorBtn">🖼️ 上傳裝飾</button>
     </div>
-    <div style="padding:8px 16px;font-size:.7rem;color:#FFD966;">📌 未放置桌子 (拖拽至右侧) &nbsp; 💡 多选: Ctrl+点击</div>
+    <div style="padding:8px 16px;font-size:.7rem;color:#FFD966;">📌 未放置桌子 (拖拽至右側) &nbsp; 💡 多選: Ctrl+點擊</div>
     <div class="table-list" id="tableList"></div>
     <div class="bg-control">
-      <div class="bg-upload" id="bgUploadBtn">🖼️ 上传背景图</div>
-      <div class="bg-delete" id="bgDeleteBtn">🗑️ 删除背景图</div>
+      <div class="bg-upload" id="bgUploadBtn">🖼️ 上傳背景圖</div>
+      <div class="bg-delete" id="bgDeleteBtn">🗑️ 刪除背景圖</div>
     </div>
   </div>
 
   <button class="toggle-stats" id="toggleStatsBtn">☰</button>
   <div class="stats-sidebar" id="statsSidebar">
-    <div class="stats-header"><span>📋 场区营业明细</span><button id="closeStatsSidebar">✖</button></div>
+    <div class="stats-header"><span>📋 場區營業明細</span><button id="closeStatsSidebar">✖</button></div>
     <div class="stats-content" id="statsContent"></div>
-    <div class="stats-footer">🛜 当前楼层: <span id="currentFloorLabel"></span></div>
+    <div class="stats-footer">🛜 當前樓層: <span id="currentFloorLabel"></span></div>
   </div>
 
   <div class="canvas-area" id="canvasArea"><div class="floor-plan" id="floorPlan"><img id="bgImage" class="bg-image" style="display:none;"></div></div>
@@ -259,33 +259,33 @@ body{margin:0;background:#1a2a3a;font-family:'Segoe UI',system-ui,sans-serif;ove
       <span id="zoomValue">100%</span>
       <button class="zoom-btn" id="zoomIn">+</button>
       <button class="zoom-btn" id="zoomReset">↺</button>
-      <button class="zoom-btn" id="saveBtn" title="导出备份">💾</button>
+      <button class="zoom-btn" id="saveBtn" title="匯出備份">💾</button>
     </div>
     <div class="stats-inline" id="statsInline"></div>
   </div>
 </div>
 
-<div id="rotatePanel" class="rotate-panel"><h4>🔄 调整旋转角度</h4><div class="slider-container"><input type="range" id="angleSlider" min="0" max="360" step="1" value="0"><span class="angle-value" id="angleValue">0°</span></div><div class="preset-angles"></div><button class="close-panel" id="closeRotatePanel">关闭</button></div>
+<div id="rotatePanel" class="rotate-panel"><h4>🔄 調整旋轉角度</h4><div class="slider-container"><input type="range" id="angleSlider" min="0" max="360" step="1" value="0"><span class="angle-value" id="angleValue">0°</span></div><div class="preset-angles"></div><button class="close-panel" id="closeRotatePanel">關閉</button></div>
 
-<!-- 添加新桌子 Modal (新增了预设图标选择) -->
+<!-- 添加新桌子 Modal (新增了預設圖示選擇) -->
 <div id="addTableModal" class="modal">
   <div class="modal-content">
     <h3>添加新桌子</h3>
-    <input type="text" id="newTableId" placeholder="桌号">
-    <input type="text" id="newZoneCode" placeholder="场区代号">
+    <input type="text" id="newTableId" placeholder="桌號">
+    <input type="text" id="newZoneCode" placeholder="場區代號">
     <select id="newTableType"></select>
     
-    <!-- 新增：预设图标选择网格 -->
-    <div style="margin-top: 10px; font-size: 0.85rem; color:#aaa;">选择预设图标：</div>
+    <!-- 新增：預設圖示選擇網格 -->
+    <div style="margin-top: 10px; font-size: 0.85rem; color:#aaa;">選擇預設圖示：</div>
     <div class="preset-icons-grid" id="tablePresetIconsGrid"></div>
 
     <div class="icon-upload-preview">
       <div class="icon-preview-box" id="newIconPreview"></div>
-      <button type="button" id="uploadIconBtn" style="background:#2c3e50;">📁 上传图标</button>
+      <button type="button" id="uploadIconBtn" style="background:#2c3e50;">📁 上傳圖示</button>
       <button type="button" id="clearIconBtn" style="background:#c0392b;">✖ 清除</button>
     </div>
     <input type="file" id="iconFileInput" accept="image/*" style="display:none;">
-    <button id="confirmAddTable">确认添加</button>
+    <button id="confirmAddTable">確認添加</button>
     <button id="cancelAddTable">取消</button>
   </div>
 </div>
@@ -294,20 +294,20 @@ body{margin:0;background:#1a2a3a;font-family:'Segoe UI',system-ui,sans-serif;ove
 <div id="newTypeModal" class="modal">
   <div class="modal-content">
     <h3>新增桌型</h3>
-    <input type="text" id="newTypeCode" placeholder="代码 (如: PK)">
-    <input type="text" id="newTypeName" placeholder="名称 (如: 扑克)">
+    <input type="text" id="newTypeCode" placeholder="代碼 (如: PK)">
+    <input type="text" id="newTypeName" placeholder="名稱 (如: 撲克)">
     
-    <div style="margin-top: 10px; font-size: 0.85rem; color:#aaa;">选择预设图标：</div>
+    <div style="margin-top: 10px; font-size: 0.85rem; color:#aaa;">選擇預設圖示：</div>
     <div class="preset-icons-grid" id="presetIconsGrid"></div>
 
     <div class="type-icon-input" style="margin-top:10px;">
-      <span style="font-size:0.85rem; color:#aaa;">或自定义上传：</span>
-      <button type="button" id="newTypeUploadIconBtn" style="width:auto; padding:4px 12px;">📁 上传</button>
+      <span style="font-size:0.85rem; color:#aaa;">或自訂上傳：</span>
+      <button type="button" id="newTypeUploadIconBtn" style="width:auto; padding:4px 12px;">📁 上傳</button>
     </div>
     <div class="icon-preview-box" id="newTypeIconPreview" style="display:none; margin-top:10px;"></div>
     <input type="file" id="newTypeIconFile" accept="image/*" style="display:none;">
     
-    <button id="confirmNewType">确认新增</button>
+    <button id="confirmNewType">確認新增</button>
     <button id="cancelNewType" style="background:#2c3e50;">取消</button>
   </div>
 </div>
@@ -345,18 +345,18 @@ const PRESET_ICONS = {
     gold_rect: `data:image/svg+xml;utf8,<svg viewBox='0 0 200 100' xmlns='http://www.w3.org/2000/svg'><rect x='10' y='10' width='180' height='80' rx='20' fill='%23f39c12' stroke='%23fff' stroke-width='4'/><rect x='20' y='20' width='160' height='60' rx='15' fill='%23d68910'/><circle cx='15' cy='30' r='5' fill='%23fff'/><circle cx='15' cy='70' r='5' fill='%23fff'/><circle cx='185' cy='30' r='5' fill='%23fff'/><circle cx='185' cy='70' r='5' fill='%23fff'/><circle cx='60' cy='15' r='5' fill='%23fff'/><circle cx='140' cy='15' r='5' fill='%23fff'/><circle cx='60' cy='85' r='5' fill='%23fff'/><circle cx='140' cy='85' r='5' fill='%23fff'/></svg>`
 };
 
-// ========== 常量与状态 ==========
+// ========== 常量與狀態 ==========
 const DEFAULT_TABLE_TYPES = { 
-    BA:{name:'百家乐', emoji:'🎲', icon:PRESET_ICONS.red_semi}, 
-    BJ:{name:'二十一点', emoji:'🃏', icon:PRESET_ICONS.blue_semi}, 
-    SSB:{name:'骰宝', emoji:'🎰', icon:PRESET_ICONS.green_semi}, 
+    BA:{name:'百家樂', emoji:'🎲', icon:PRESET_ICONS.red_semi}, 
+    BJ:{name:'二十一點', emoji:'🃏', icon:PRESET_ICONS.blue_semi}, 
+    SSB:{name:'骰寶', emoji:'🎰', icon:PRESET_ICONS.green_semi}, 
     CS:{name:'加勒比海', emoji:'🌊', icon:PRESET_ICONS.purple_semi}, 
-    AR:{name:'轮盘', emoji:'🎡', icon:PRESET_ICONS.dark_rect}, 
-    TCB:{name:'三公百家乐', emoji:'🃏', icon:PRESET_ICONS.yellow_semi}, 
-    TCP:{name:'富贵三公', emoji:'👑', icon:PRESET_ICONS.teal_semi}, 
-    FTC:{name:'富贵三宝', emoji:'💎', icon:PRESET_ICONS.pink_semi}, 
-    NCBA:{name:'免佣百家乐', emoji:'💰', icon:PRESET_ICONS.orange_semi}, 
-    FT:{name:'番摊', emoji:'🎲', icon:PRESET_ICONS.gold_rect}, 
+    AR:{name:'輪盤', emoji:'🎡', icon:PRESET_ICONS.dark_rect}, 
+    TCB:{name:'三公百家樂', emoji:'🃏', icon:PRESET_ICONS.yellow_semi}, 
+    TCP:{name:'富貴三公', emoji:'👑', icon:PRESET_ICONS.teal_semi}, 
+    FTC:{name:'富貴三寶', emoji:'💎', icon:PRESET_ICONS.pink_semi}, 
+    NCBA:{name:'免傭百家樂', emoji:'💰', icon:PRESET_ICONS.orange_semi}, 
+    FT:{name:'番攤', emoji:'🎲', icon:PRESET_ICONS.gold_rect}, 
     PG:{name:'牌九', emoji:'🀄️', icon:PRESET_ICONS.dark_rect} 
 };
 let TABLE_TYPES = { ...DEFAULT_TABLE_TYPES };
@@ -389,7 +389,7 @@ const rotatePanel = $('rotatePanel'), angleSlider = $('angleSlider'), angleValue
 const loginOverlay = $('loginOverlay'), casinoOverlay = $('casinoOverlay'), appDiv = $('appDiv');
 const casinoListDiv = $('casinoList'), loginError = $('loginError');
 
-// ========== 工具函数 ==========
+// ========== 工具函數 ==========
 function cp(p){ return `casinos/${currentCasinoId}/${p}`; }
 function cid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 function showToast(msg){ const t=document.createElement('div'); t.className='toast-msg'; t.innerText=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2000); }
@@ -398,7 +398,7 @@ function clearSelection(){ document.querySelectorAll('.canvas-table.selected').f
 function esc(s){ return String(s).replace(/[&<>]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
 async function batch(upd){ if(Object.keys(upd).length===0) return; await update(ref(db), upd); }
 
-// ========== 登录逻辑 ==========
+// ========== 登錄邏輯 ==========
 function performLogin() {
   const user = $('loginUser').value.trim();
   const pwd = $('loginPwd').value;
@@ -410,7 +410,7 @@ function performLogin() {
     casinoOverlay.style.display = 'flex';
     bindCasinoList();
   } else {
-    loginError.textContent = '用户名或密码错误';
+    loginError.textContent = '用戶名或密碼錯誤';
   }
 }
 $('loginBtn').onclick = performLogin;
@@ -434,21 +434,21 @@ if (sessionStorage.getItem('loggedIn') === 'true') {
   loginOverlay.style.display = 'flex';
 }
 
-// ========== 开发者模式 ==========
+// ========== 開發者模式 ==========
 $('devModeBtn').onclick = () => {
-  const devPwd = prompt('请输入开发者密码：');
+  const devPwd = prompt('請輸入開發者密碼：');
   if (devPwd === 'Abcd@1234') {
-    const newPwd = prompt('开发者模式已开启\n请输入新的管理员密码（留空则取消修改）：');
+    const newPwd = prompt('開發者模式已開啟\n請輸入新的管理員密碼（留空則取消修改）：');
     if (newPwd && newPwd.trim() !== '') {
       localStorage.setItem('adminPwd', newPwd.trim());
-      alert('密码修改成功！下次登录请使用新密码。');
+      alert('密碼修改成功！下次登錄請使用新密碼。');
     }
   } else if (devPwd !== null) {
-    alert('开发者密码错误！');
+    alert('開發者密碼錯誤！');
   }
 };
 
-// ========== 快照与撤销 ==========
+// ========== 快照與撤銷 ==========
 function captureState(){
   if(_skipCapture){ _skipCapture=false; return; }
   const s = JSON.parse(JSON.stringify({floorData, availableTables, decorElements, currentFloor}));
@@ -458,7 +458,7 @@ function captureState(){
   historyIndex = historyStack.length-1;
 }
 async function undo(){
-  if(historyIndex <= 0){ alert('没有可撤销的操作'); return; }
+  if(historyIndex <= 0){ alert('沒有可撤銷的操作'); return; }
   historyIndex--;
   const s = historyStack[historyIndex];
   const base = `casinos/${currentCasinoId}`;
@@ -472,10 +472,10 @@ async function undo(){
   Object.keys(s.availableTables).forEach(id => { upd[`${base}/availableTables/${id}`] = s.availableTables[id]; });
   s.decorElements.forEach(d => { upd[`${base}/decorations/${d.floor}/${d.id}`] = { url:d.url, x:d.x, y:d.y, width:d.width, height:d.height, angle:d.angle }; });
   _skipCapture = true;
-  try { await batch(upd); showToast('已撤销'); } catch(e){ console.error(e); showToast('撤销失败'); }
+  try { await batch(upd); showToast('已撤銷'); } catch(e){ console.error(e); showToast('撤銷失敗'); }
 }
 
-// ========== 缩放 ==========
+// ========== 縮放 ==========
 function applyZoom(){
   floorPlanDiv.style.transform = `scale(${currentZoom})`;
   floorPlanDiv.style.transformOrigin = '0 0';
@@ -495,7 +495,7 @@ function adjustCanvasSize(){
   floorPlanDiv.style.minHeight = Math.max(maxY, canvasAreaDiv.clientHeight)+'px';
 }
 
-// ========== 图标 ==========
+// ========== 圖示 ==========
 function getTableIconHtml(table){
   const info = TABLE_TYPES[table.type];
   if(!info) return '<div style="font-size:1.5rem;">❓</div>';
@@ -509,14 +509,14 @@ function getTableIconHtml(table){
 function updateTableList(){
   tableListDiv.innerHTML = '';
   const ids = Object.keys(availableTables);
-  if(!ids.length){ tableListDiv.innerHTML = '<div style="color:#aaa;text-align:center;">暂无未放置桌子<br>点击「添加桌子」创建</div>'; return; }
+  if(!ids.length){ tableListDiv.innerHTML = '<div style="color:#aaa;text-align:center;">暫無未放置桌子<br>點擊「添加桌子」創建</div>'; return; }
   ids.forEach(id=>{
     const info = availableTables[id];
     const div = document.createElement('div');
     div.className = 'draggable-table';
     div.setAttribute('data-id', id);
     div.setAttribute('draggable','true');
-    div.innerHTML = `<div class="table-info-row"><span class="table-num">#${esc(id)}</span><span class="table-zone">${esc(info.zoneCode||'无场区')}</span><span class="table-zone" style="background:#e67e22;">${esc(info.type)}</span><button class="icon-upload-btn" data-id="${esc(id)}">📷</button><button class="action-btn-small edit-btn" data-id="${esc(id)}">✏️</button><button class="action-btn-small copy-btn" data-id="${esc(id)}">📋</button><button class="delete-table-btn" data-id="${esc(id)}">✖</button></div><div class="table-info-row"><select class="table-type-select" data-id="${esc(id)}">${TYPE_LIST.map(t=>`<option value="${t}" ${t===info.type?'selected':''}>${t} - ${TABLE_TYPES[t]?.name||t}</option>`).join('')}</select></div>`;
+    div.innerHTML = `<div class="table-info-row"><span class="table-num">#${esc(id)}</span><span class="table-zone">${esc(info.zoneCode||'無場區')}</span><span class="table-zone" style="background:#e67e22;">${esc(info.type)}</span><button class="icon-upload-btn" data-id="${esc(id)}">📷</button><button class="action-btn-small edit-btn" data-id="${esc(id)}">✏️</button><button class="action-btn-small copy-btn" data-id="${esc(id)}">📋</button><button class="delete-table-btn" data-id="${esc(id)}">✖</button></div><div class="table-info-row"><select class="table-type-select" data-id="${esc(id)}">${TYPE_LIST.map(t=>`<option value="${t}" ${t===info.type?'selected':''}>${t} - ${TABLE_TYPES[t]?.name||t}</option>`).join('')}</select></div>`;
     const sel = div.querySelector('.table-type-select');
     sel.onchange = async () => {
       await update(ref(db, cp(`availableTables/${id}`)), { type: sel.value });
@@ -527,7 +527,7 @@ function updateTableList(){
       inp.onchange = ev => {
         const file = ev.target.files[0]; if(!file) return;
         const r = new FileReader();
-        r.onload = async e2 => { await update(ref(db, cp(`availableTables/${id}`)), { customIcon: e2.target.result }); showToast('图标已更新'); };
+        r.onload = async e2 => { await update(ref(db, cp(`availableTables/${id}`)), { customIcon: e2.target.result }); showToast('圖示已更新'); };
         r.readAsDataURL(file);
       };
       inp.click();
@@ -535,11 +535,11 @@ function updateTableList(){
     div.querySelector('.edit-btn').onclick = async e => {
       e.stopPropagation();
       const oldId = id, oldZone = info.zoneCode || '', oldType = info.type;
-      const newId = prompt('桌号:', oldId); if(newId===null) return;
-      const newZone = prompt('场区代号:', oldZone); if(newZone===null) return;
-      const newType = prompt('桌型代码:', oldType); if(newType===null) return;
-      if(!newId.trim() || !TABLE_TYPES[newType.toUpperCase()]){ alert('输入无效'); return; }
-      if(newId.trim() !== oldId && isTableIdUsed(newId.trim(), oldId)){ alert('桌号已存在'); return; }
+      const newId = prompt('桌號:', oldId); if(newId===null) return;
+      const newZone = prompt('場區代號:', oldZone); if(newZone===null) return;
+      const newType = prompt('桌型代碼:', oldType); if(newType===null) return;
+      if(!newId.trim() || !TABLE_TYPES[newType.toUpperCase()]){ alert('輸入無效'); return; }
+      if(newId.trim() !== oldId && isTableIdUsed(newId.trim(), oldId)){ alert('桌號已存在'); return; }
       const upd = {};
       upd[cp(`availableTables/${oldId}`)] = null;
       upd[cp(`availableTables/${newId.trim()}`)] = { type: newType.toUpperCase(), zoneCode: newZone, customIcon: info.customIcon, win: info.win||0 };
@@ -548,16 +548,16 @@ function updateTableList(){
     };
     div.querySelector('.copy-btn').onclick = async e => {
       e.stopPropagation();
-      const newId = prompt('新桌号:', id+'_copy'); if(!newId) return;
-      if(isTableIdUsed(newId.trim())){ alert('桌号已存在'); return; }
+      const newId = prompt('新桌號:', id+'_copy'); if(!newId) return;
+      if(isTableIdUsed(newId.trim())){ alert('桌號已存在'); return; }
       await set(ref(db, cp(`availableTables/${newId.trim()}`)), { type: info.type, zoneCode: info.zoneCode||'', customIcon: info.customIcon||null, win: 0 });
-      showToast('已复制');
+      showToast('已複製');
     };
     div.querySelector('.delete-table-btn').onclick = async e => {
       e.stopPropagation();
-      if(!confirm(`删除未放置桌子 ${id}？`)) return;
+      if(!confirm(`刪除未放置桌子 ${id}？`)) return;
       await remove(ref(db, cp(`availableTables/${id}`)));
-      showToast('已删除');
+      showToast('已刪除');
     };
     div.addEventListener('dragstart', e => {
       e.dataTransfer.setData('text/plain', JSON.stringify({ id, ...availableTables[id] }));
@@ -573,8 +573,8 @@ function isTableIdUsed(id, excludeId=null){
 }
 async function addNewTable(){
   const id = newTableIdInput.value.trim();
-  if(!id){ alert('请输入桌号'); return; }
-  if(isTableIdUsed(id)){ alert('桌号已存在'); return; }
+  if(!id){ alert('請輸入桌號'); return; }
+  if(isTableIdUsed(id)){ alert('桌號已存在'); return; }
   await set(ref(db, cp(`availableTables/${id}`)), {
     type: newTableTypeSelect.value,
     zoneCode: newZoneCodeInput.value.trim(),
@@ -589,7 +589,7 @@ async function addNewTable(){
   showToast('桌子已添加');
 }
 
-// ========== 渲染当前楼层 ==========
+// ========== 渲染當前樓層 ==========
 function renderCurrentFloor(){
   document.querySelectorAll('.canvas-table').forEach(t=>t.remove());
   const tables = floorData[currentFloor] || [];
@@ -609,7 +609,7 @@ function createTableElement(table){
   div.style.left = `${table.x}px`;
   div.style.top = `${table.y}px`;
   div.style.transform = `rotate(${table.angle||0}deg)`;
-  div.innerHTML = `<div class="table-icon">${getTableIconHtml(table)}</div><div class="table-info"><div class="table-number">桌号 ${esc(table.id)}</div><div class="table-type">${esc(table.type)}</div><div class="table-zone">${esc(table.zoneCode||'无场区')}</div><div class="table-status">${table.status==='open'?'🟢 开放':'⚫ 关闭'}</div></div><div class="action-buttons"><div class="action-btn rotate-btn">🔄</div></div>`;
+  div.innerHTML = `<div class="table-icon">${getTableIconHtml(table)}</div><div class="table-info"><div class="table-number">桌號 ${esc(table.id)}</div><div class="table-type">${esc(table.type)}</div><div class="table-zone">${esc(table.zoneCode||'無場區')}</div><div class="table-status">${table.status==='open'?'🟢 開放':'⚫ 關閉'}</div></div><div class="action-buttons"><div class="action-btn rotate-btn">🔄</div></div>`;
   div.addEventListener('click', e => {
     if(e.target.closest('.action-btn')) return;
     e.stopPropagation();
@@ -652,7 +652,7 @@ function makeDraggable(el){
           upd[cp(`floors/${currentFloor}/${id}/x`)] = parseFloat(el.style.left);
           upd[cp(`floors/${currentFloor}/${id}/y`)] = parseFloat(el.style.top);
         }
-        try { await batch(upd); } catch(err){ console.error(err); showToast('同步失败'); }
+        try { await batch(upd); } catch(err){ console.error(err); showToast('同步失敗'); }
         adjustCanvasSize();
         bindCasinoData(currentCasinoId);
       }
@@ -667,7 +667,7 @@ function showInfoPanel(card, t){
   const winC = t.win>0?'win-positive':(t.win<0?'win-negative':'');
   const panel = document.createElement('div');
   panel.className = 'info-panel';
-  panel.innerHTML = `<div class="title">📋 桌子信息</div><div class="info-row"><span class="info-label">桌号：</span><span class="info-value">${esc(t.id)}</span></div><div class="info-row"><span class="info-label">桌型：</span><span class="info-value">${esc(t.type)}</span></div><div class="info-row"><span class="info-label">场区：</span><span class="info-value">${esc(t.zoneCode||'无')}</span></div><div class="info-row"><span class="info-label">营业额：</span><span class="info-value ${winC}">💰 ${winF}</span></div><div class="info-row"><span class="info-label">状态：</span><span class="info-value">${t.status==='open'?'开放中':'已关闭'}</span></div><div class="status-buttons"><button class="status-btn open">🟢 开放</button><button class="status-btn closed">⚫ 关闭</button></div><div class="footer-buttons"><button class="footer-btn edit">✏️ 编辑</button><button class="footer-btn delete">🗑️ 删除</button><button class="footer-btn close">关闭</button></div>`;
+  panel.innerHTML = `<div class="title">📋 桌子信息</div><div class="info-row"><span class="info-label">桌號：</span><span class="info-value">${esc(t.id)}</span></div><div class="info-row"><span class="info-label">桌型：</span><span class="info-value">${esc(t.type)}</span></div><div class="info-row"><span class="info-label">場區：</span><span class="info-value">${esc(t.zoneCode||'無')}</span></div><div class="info-row"><span class="info-label">營業額：</span><span class="info-value ${winC}">💰 ${winF}</span></div><div class="info-row"><span class="info-label">狀態：</span><span class="info-value">${t.status==='open'?'開放中':'已關閉'}</span></div><div class="status-buttons"><button class="status-btn open">🟢 開放</button><button class="status-btn closed">⚫ 關閉</button></div><div class="footer-buttons"><button class="footer-btn edit">✏️ 編輯</button><button class="footer-btn delete">🗑️ 刪除</button><button class="footer-btn close">關閉</button></div>`;
   const rect = card.getBoundingClientRect(), cRect = canvasAreaDiv.getBoundingClientRect();
   let left = rect.right+10, top = rect.top;
   if(left+240 > cRect.right) left = rect.left-240;
@@ -676,21 +676,21 @@ function showInfoPanel(card, t){
   panel.style.left = left+'px'; panel.style.top = top+'px';
   panel.querySelector('.status-btn.open').onclick = async () => {
     await update(ref(db, cp(`floors/${currentFloor}/${t.id}`)), { status: 'open' });
-    showToast('已开放');
+    showToast('已開放');
     panel.remove(); currentInfoPanel = null;
   };
   panel.querySelector('.status-btn.closed').onclick = async () => {
     await update(ref(db, cp(`floors/${currentFloor}/${t.id}`)), { status: 'closed' });
-    showToast('已关闭');
+    showToast('已關閉');
     panel.remove(); currentInfoPanel = null;
   };
   panel.querySelector('.footer-btn.edit').onclick = async () => {
     panel.remove(); currentInfoPanel = null;
     const oldId = t.id;
-    const newId = prompt('新桌号:', oldId); if(newId===null) return;
-    const newZone = prompt('场区代号:', t.zoneCode||''); if(newZone===null) return;
-    if(!newId.trim()){ alert('桌号不能为空'); return; }
-    if(newId.trim()!==oldId && isTableIdUsed(newId.trim(), oldId)){ alert('桌号已存在'); return; }
+    const newId = prompt('新桌號:', oldId); if(newId===null) return;
+    const newZone = prompt('場區代號:', t.zoneCode||''); if(newZone===null) return;
+    if(!newId.trim()){ alert('桌號不能為空'); return; }
+    if(newId.trim()!==oldId && isTableIdUsed(newId.trim(), oldId)){ alert('桌號已存在'); return; }
     const upd = {};
     if(newId.trim()!==oldId){
       upd[cp(`floors/${currentFloor}/${oldId}`)] = null;
@@ -702,7 +702,7 @@ function showInfoPanel(card, t){
     showToast('已更新');
   };
   panel.querySelector('.footer-btn.delete').onclick = async () => {
-    if(!confirm(`删除桌子 ${t.id}？`)) return;
+    if(!confirm(`刪除桌子 ${t.id}？`)) return;
     const upd = {};
     upd[cp(`floors/${currentFloor}/${t.id}`)] = null;
     upd[cp(`availableTables/${t.id}`)] = { type:t.type, zoneCode:t.zoneCode||'', customIcon:t.customIcon||null, win:t.win||0 };
@@ -739,7 +739,7 @@ function initDropTarget(){
   });
 }
 
-// ========== 对齐/分布 ==========
+// ========== 對齊/分佈 ==========
 function getSelected(){ return (floorData[currentFloor]||[]).filter(t => selectedTableIds.has(t.id)); }
 async function applyLayout(fn){
   const tables = getSelected();
@@ -748,7 +748,7 @@ async function applyLayout(fn){
   const upd = {};
   tables.forEach(t => { upd[cp(`floors/${currentFloor}/${t.id}/x`)] = t.x; upd[cp(`floors/${currentFloor}/${t.id}/y`)] = t.y; });
   await batch(upd);
-  showToast('已应用');
+  showToast('已應用');
 }
 function alignLeft(){ applyLayout(ts=>{ const m=Math.min(...ts.map(t=>t.x)); ts.forEach(t=>t.x=m); }); }
 function alignRight(){ applyLayout(ts=>{ const m=Math.max(...ts.map(t=>t.x+170)); ts.forEach(t=>t.x=m-170); }); }
@@ -757,7 +757,7 @@ function alignCenterV(){ applyLayout(ts=>{ const c=(Math.min(...ts.map(t=>t.y))+
 function distributeH(){ applyLayout(ts=>{ const s=[...ts].sort((a,b)=>a.x-b.x); const tot=s[s.length-1].x+170-s[0].x; const g=tot/(s.length-1); s.forEach((t,i)=>t.x=s[0].x+i*g); }); }
 function distributeV(){ applyLayout(ts=>{ const s=[...ts].sort((a,b)=>a.y-b.y); const tot=s[s.length-1].y+120-s[0].y; const g=tot/(s.length-1); s.forEach((t,i)=>t.y=s[0].y+i*g); }); }
 
-// ========== 装饰 ==========
+// ========== 裝飾 ==========
 function renderDecorations(){
   document.querySelectorAll('.decor-item').forEach(el=>el.remove());
   decorElements.filter(d=>d.floor===currentFloor).forEach(d=>{
@@ -773,7 +773,7 @@ function renderDecorations(){
     div.querySelector('.delete-decor').onclick = async e => {
       e.stopPropagation();
       await remove(ref(db, cp(`decorations/${currentFloor}/${d.id}`)));
-      showToast('已删除装饰');
+      showToast('已刪除裝飾');
     };
   });
   adjustCanvasSize();
@@ -827,14 +827,14 @@ async function uploadDecor(){
     r.onload = async ev => {
       const newId = nextDecorId++;
       await set(ref(db, cp(`decorations/${currentFloor}/${newId}`)), { url: ev.target.result, x:100, y:100, width:120, height:120, angle:0 });
-      showToast('装饰已添加');
+      showToast('裝飾已添加');
     };
     r.readAsDataURL(file);
   };
   inp.click();
 }
 
-// ========== 旋转 ==========
+// ========== 旋轉 ==========
 function showRotatePanel(card, angle){ currentRotatingTable = card; angleSlider.value = angle; angleValue.innerText = angle+'°'; rotatePanel.classList.add('show'); }
 async function setTableAngle(card, angle){
   if(!card) return;
@@ -858,7 +858,7 @@ function initRotatePanel(){
   canvasAreaDiv.addEventListener('click', e => { if(!e.target.closest('.rotate-panel') && !e.target.closest('.action-btn.rotate-btn')) rotatePanel.classList.remove('show'); });
 }
 
-// ========== 楼层 ==========
+// ========== 樓層 ==========
 function renderFloorTabs(){
   floorTabsContainer.innerHTML = '';
   const keys = Object.keys(floorData);
@@ -869,9 +869,9 @@ function renderFloorTabs(){
     btn.onclick = e => { if(e.target.classList.contains('edit-floor')||e.target.classList.contains('del-floor')) return; switchFloor(key); };
     btn.querySelector('.edit-floor').onclick = async e => {
       e.stopPropagation();
-      const newName = prompt('新楼层名:', key);
+      const newName = prompt('新樓層名:', key);
       if(!newName || !newName.trim() || newName.trim()===key) return;
-      if(floorData[newName.trim()]){ alert('楼层已存在'); return; }
+      if(floorData[newName.trim()]){ alert('樓層已存在'); return; }
       const upd = {};
       (floorData[key]||[]).forEach(t => { upd[cp(`floors/${newName.trim()}/${t.id}`)] = { x:t.x, y:t.y, status:t.status, type:t.type, zoneCode:t.zoneCode||'', customIcon:t.customIcon||null, angle:t.angle||0, win:t.win||0 }; });
       upd[cp(`floors/${key}`)] = null;
@@ -879,43 +879,43 @@ function renderFloorTabs(){
       upd[cp(`decorations/${key}`)] = null;
       await batch(upd);
       if(currentFloor===key) currentFloor = newName.trim();
-      showToast('楼层已重命名');
+      showToast('樓層已重命名');
     };
     btn.querySelector('.del-floor').onclick = async e => {
       e.stopPropagation();
-      if(Object.keys(floorData).length<=1){ alert('至少保留一个楼层'); return; }
-      if(!confirm(`删除楼层 ${key}？桌子将移至未放置`)) return;
+      if(Object.keys(floorData).length<=1){ alert('至少保留一個樓層'); return; }
+      if(!confirm(`刪除樓層 ${key}？桌子將移至未放置`)) return;
       const upd = {};
       (floorData[key]||[]).forEach(t => { upd[cp(`availableTables/${t.id}`)] = { type:t.type, zoneCode:t.zoneCode||'', customIcon:t.customIcon||null, win:t.win||0 }; });
       upd[cp(`floors/${key}`)] = null;
       upd[cp(`decorations/${key}`)] = null;
       await batch(upd);
-      showToast('楼层已删除');
+      showToast('樓層已刪除');
     };
     floorTabsContainer.appendChild(btn);
   });
   const addBtn = document.createElement('button');
   addBtn.className = 'add-floor-btn';
-  addBtn.innerText = '+ 添加楼层';
+  addBtn.innerText = '+ 添加樓層';
   addBtn.onclick = async () => {
-    const n = prompt('楼层名称:');
+    const n = prompt('樓層名稱:');
     if(!n || !n.trim()) return;
-    if(floorData[n.trim()]){ alert('楼层已存在'); return; }
+    if(floorData[n.trim()]){ alert('樓層已存在'); return; }
     await set(ref(db, cp(`floors/${n.trim()}`)), {});
     switchFloor(n.trim());
-    showToast('楼层已添加');
+    showToast('樓層已添加');
   };
   floorTabsContainer.appendChild(addBtn);
   currentFloorLabel.innerText = currentFloor || '';
 }
 function switchFloor(k){ currentFloor = k; clearSelection(); renderCurrentFloor(); renderDecorations(); renderFloorTabs(); renderStats(); updateStatsBar(); }
 
-// ========== 统计 ==========
+// ========== 統計 ==========
 function updateStatsBar(){
   const tables = floorData[currentFloor] || [];
   const map = new Map();
   tables.forEach(t=>{ if(!map.has(t.type)) map.set(t.type,{o:0,c:0}); const s=map.get(t.type); if(t.status==='open') s.o++; else s.c++; });
-  if(!map.size){ statsInline.innerHTML = '<div class="stats-item-inline">暂无桌子</div>'; return; }
+  if(!map.size){ statsInline.innerHTML = '<div class="stats-item-inline">暫無桌子</div>'; return; }
   let html = '';
   for(const [code, s] of map){ html += `<div class="stats-item-inline"><div class="stats-numbers-inline"><span class="stats-open-inline">🟢 ${s.o}</span><span class="stats-closed-inline">⚫ ${s.c}</span></div><div class="stats-label-inline">${esc(code)}</div></div>`; }
   statsInline.innerHTML = html;
@@ -923,8 +923,8 @@ function updateStatsBar(){
 function renderStats(){
   const tables = floorData[currentFloor] || [];
   const zones = new Map();
-  tables.forEach(t=>{ const z = t.zoneCode?.trim()||'未分配场区'; if(!zones.has(z)) zones.set(z,{t:[],w:0}); const g=zones.get(z); g.t.push(t); g.w += t.win||0; });
-  if(!zones.size){ statsContent.innerHTML = '<div style="text-align:center;padding:20px;">暂无数据</div>'; return; }
+  tables.forEach(t=>{ const z = t.zoneCode?.trim()||'未分配場區'; if(!zones.has(z)) zones.set(z,{t:[],w:0}); const g=zones.get(z); g.t.push(t); g.w += t.win||0; });
+  if(!zones.size){ statsContent.innerHTML = '<div style="text-align:center;padding:20px;">暫無數據</div>'; return; }
   let html = '';
   for(const [zone, g] of zones){
     g.t.sort((a,b)=>{ if(a.status==='open' && b.status!=='open') return -1; if(a.status!=='open' && b.status==='open') return 1; const an=parseInt(a.id), bn=parseInt(b.id); return !isNaN(an)&&!isNaN(bn) ? an-bn : a.id.localeCompare(b.id); });
@@ -981,10 +981,10 @@ function initTablePresetIconsGrid() {
 
 async function addNewTableType(){
   let code = newTypeCodeInput.value.trim().toUpperCase();
-  if(!code){ alert('请输入代码'); return; }
+  if(!code){ alert('請輸入代碼'); return; }
   if(TABLE_TYPES[code]){ alert('已存在'); return; }
   const name = newTypeNameInput.value.trim();
-  if(!name){ alert('请输入名称'); return; }
+  if(!name){ alert('請輸入名稱'); return; }
   const emoji = newTypeEmojiInput.value.trim() || '🎲';
   
   const iconToUse = newTypeTempIcon || selectedPresetIcon || null;
@@ -1002,16 +1002,16 @@ function importExcel(file){
     try {
       const wb = XLSX.read(new Uint8Array(e.target.result), { type:'array' });
       const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header:1, defval:'' });
-      if(rows.length<2){ alert('至少需要两行'); return; }
+      if(rows.length<2){ alert('至少需要兩行'); return; }
       const h = rows[0].map(c => String(c).toLowerCase().trim());
       let idC = -1, winC = -1, zoneC = -1, typeC = -1;
       h.forEach((cell,i)=>{
-        if(cell.includes('桌号')||cell.includes('table')||cell.includes('id')) idC = i;
-        if(cell.includes('win')||cell.includes('营业额')||cell.includes('赢')) winC = i;
-        if(cell.includes('场区')||cell.includes('zone')) zoneC = i;
+        if(cell.includes('桌號')||cell.includes('table')||cell.includes('id')) idC = i;
+        if(cell.includes('win')||cell.includes('營業額')||cell.includes('贏')) winC = i;
+        if(cell.includes('場區')||cell.includes('zone')) zoneC = i;
         if(cell.includes('桌型')||cell.includes('type')) typeC = i;
       });
-      if(idC === -1){ alert('未找到桌号列'); return; }
+      if(idC === -1){ alert('未找到桌號列'); return; }
       const upd = {};
       let nWin=0, nZone=0, nType=0;
       for(let i=1; i<rows.length; i++){
@@ -1025,19 +1025,19 @@ function importExcel(file){
         if(zoneC !== -1 && r[zoneC] !== undefined){ const z = String(r[zoneC]).trim(); if(z && z !== found.zoneCode){ upd[cp(`floors/${floorOf}/${id}/zoneCode`)] = z; nZone++; } }
         if(typeC !== -1 && r[typeC] !== undefined){ const ty = String(r[typeC]).trim().toUpperCase(); if(ty && TYPE_LIST.includes(ty) && ty !== found.type){ upd[cp(`floors/${floorOf}/${id}/type`)] = ty; nType++; } }
       }
-      if(Object.keys(upd).length){ batch(upd).then(()=>alert(`更新完成：营业额 ${nWin}、场区 ${nZone}、桌型 ${nType}`)); }
-      else alert('没有匹配到任何桌子');
-    } catch(err){ console.error(err); alert('Excel 解析失败'); }
+      if(Object.keys(upd).length){ batch(upd).then(()=>alert(`更新完成：營業額 ${nWin}、場區 ${nZone}、桌型 ${nType}`)); }
+      else alert('沒有匹配到任何桌子');
+    } catch(err){ console.error(err); alert('Excel 解析失敗'); }
   };
   reader.readAsArrayBuffer(file);
 }
 
-// ========== 加载存档 ==========
+// ========== 載入存檔 ==========
 async function loadArchive(file){
   const text = await file.text();
   const data = JSON.parse(text);
-  if(!data.floorData){ alert('无效存档'); return; }
-  if(!confirm('导入将覆盖当前娱乐场的所有数据，继续？')) return;
+  if(!data.floorData){ alert('無效存檔'); return; }
+  if(!confirm('導入將覆蓋當前娛樂場的所有資料，繼續？')) return;
   const upd = {};
   upd[cp('floors')] = null; upd[cp('decorations')] = null; upd[cp('availableTables')] = null;
   Object.keys(data.floorData).forEach(f => data.floorData[f].forEach(t=>{
@@ -1046,10 +1046,10 @@ async function loadArchive(file){
   Object.keys(data.availableTables||{}).forEach(id => { upd[cp(`availableTables/${id}`)] = data.availableTables[id]; });
   (data.decorElements||[]).forEach(d => { upd[cp(`decorations/${d.floor}/${d.id}`)] = { url:d.url, x:d.x, y:d.y, width:d.width, height:d.height, angle:d.angle }; });
   await batch(upd);
-  showToast('存档已导入');
+  showToast('存檔已導入');
 }
 
-// ========== 数据绑定 ==========
+// ========== 數據綁定 ==========
 function rebuildLocalState(val){
   const prevFloor = currentFloor;
   const floors = val.floors || {}, decors = val.decorations || {}, avail = val.availableTables || {};
@@ -1092,13 +1092,13 @@ function bindCasinoData(id){
   });
 }
 
-// ========== 娱乐场列表 ==========
+// ========== 娛樂場列表 ==========
 function bindCasinoList(){
   if(casinoListUnsub) casinoListUnsub();
   casinoListUnsub = onValue(ref(db, 'casinos'), snap => {
     const data = snap.val() || {};
     const ids = Object.keys(data);
-    if(!ids.length){ casinoListDiv.innerHTML = '<div class="casino-empty">尚无娱乐场，点击下方「新增娱乐场」开始</div>'; return; }
+    if(!ids.length){ casinoListDiv.innerHTML = '<div class="casino-empty">尚無娛樂場，點擊下方「新增娛樂場」開始</div>'; return; }
     ids.sort((a,b)=>(data[b].createdAt||0)-(data[a].createdAt||0));
     casinoListDiv.innerHTML = ids.map(id => `
       <div class="casino-item" data-id="${id}">
@@ -1106,7 +1106,7 @@ function bindCasinoList(){
           <div class="casino-name">🏢 ${esc(data[id].name||id)}</div>
           <div class="casino-meta">${data[id].createdAt ? new Date(data[id].createdAt).toLocaleString() : ''}</div>
         </div>
-        <button class="casino-del" data-id="${id}">🗑️ 删除</button>
+        <button class="casino-del" data-id="${id}">🗑️ 刪除</button>
       </div>
     `).join('');
     casinoListDiv.querySelectorAll('.casino-item').forEach(el=>{
@@ -1116,9 +1116,9 @@ function bindCasinoList(){
       btn.onclick = async e => {
         e.stopPropagation();
         const id = btn.dataset.id;
-        if(!confirm(`确定删除「${data[id].name||id}」？此操作不可恢复。`)) return;
+        if(!confirm(`確定刪除「${data[id].name||id}」？此操作不可恢復。`)) return;
         await remove(ref(db, 'casinos/'+id));
-        showToast('已删除');
+        showToast('已刪除');
       };
     });
   });
@@ -1133,7 +1133,7 @@ async function enterCasino(id){
   bindCasinoData(id);
 }
 
-// ========== UI 绑定 ==========
+// ========== UI 綁定 ==========
 function initCollapsibleTools(){
   const h = $('collapsibleHeader'), c = $('collapsibleContent'), ic = $('collapseIcon');
   if(!h) return;
@@ -1143,10 +1143,10 @@ function initCollapsibleTools(){
 function initUI(){
   $('undoBtn').onclick = undo;
   $('clearBtn').onclick = async () => {
-    const pwd = prompt('⚠️ 清空需要密码：');
+    const pwd = prompt('⚠️ 清空需要密碼：');
     if(pwd === null) return;
-    if(pwd !== '@Abcd1234'){ alert('密码错误'); return; }
-    if(!confirm('确认清空当前楼层所有数据？')) return;
+    if(pwd !== '@Abcd1234'){ alert('密碼錯誤'); return; }
+    if(!confirm('確認清空當前樓層所有資料？')) return;
     const upd = {};
     upd[cp(`floors/${currentFloor}`)] = null;
     upd[cp(`decorations/${currentFloor}`)] = null;
@@ -1161,7 +1161,7 @@ function initUI(){
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'casino_plan.json'; a.click();
     URL.revokeObjectURL(a.href);
-    showToast('已导出 casino_plan.json');
+    showToast('已匯出 casino_plan.json');
   };
   $('toggleSidebarBtn').onclick = () => $('sidebar').classList.toggle('collapsed');
   $('excelImportBtn').onclick = () => { const inp = document.createElement('input'); inp.type='file'; inp.accept='.xlsx,.xls,.csv'; inp.onchange = e => { if(e.target.files[0]) importExcel(e.target.files[0]); }; inp.click(); };
@@ -1188,7 +1188,7 @@ function initUI(){
   };
   $('bgDeleteBtn').onclick = () => { bgImage.src=''; bgImage.style.display='none'; remove(ref(db, cp('bgImage'))); };
   
-  // 添加桌子相关事件
+  // 添加桌子相關事件
   $('addTableBtn').onclick = () => { 
     addTableModal.style.display='flex'; 
     newTableIdInput.value=''; 
@@ -1221,7 +1221,7 @@ function initUI(){
     r.readAsDataURL(f); 
   };
   
-  // 初始化预设图标网格
+  // 初始化預設圖示網格
   initPresetIconsGrid();
 
   $('newTypeBtn').onclick = () => { 
@@ -1258,13 +1258,13 @@ function initUI(){
 }
 
 $('createCasinoBtn').onclick = async () => {
-  const name = prompt('娱乐场名称：'); if(!name || !name.trim()) return;
+  const name = prompt('娛樂場名稱：'); if(!name || !name.trim()) return;
   const newRef = ref(db, 'casinos/' + cid());
   await set(newRef, { name: name.trim(), createdAt: Date.now(), createdBy: 'admin' });
-  showToast('娱乐场已新增');
+  showToast('娛樂場已新增');
 };
 
-// 全局桌型监听
+// 全域桌型監聽
 onValue(ref(db, 'customTypes'), snap => {
   const val = snap.val() || {};
   customTypes = {};
