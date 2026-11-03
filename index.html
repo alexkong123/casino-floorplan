@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>娱乐场 Floor Plan | 多娱乐场 · 云端同步</title>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+<style>
+*{user-select:none;-webkit-tap-highlight-color:transparent;box-sizing:border-box}
+body{margin:0;background:#1a2a3a;font-family:'Segoe UI',system-ui,sans-serif;overflow:hidden;height:100vh}
+.app{display:flex;height:100vh;width:100%;position:relative}
+.sidebar{width:380px;background:rgba(0,0,0,.75);backdrop-filter:blur(12px);border-right:1px solid rgba(255,215,150,.3);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;z-index:10;transition:width .25s ease;padding-top:48px}
+.sidebar.collapsed{width:0;border-right:none;overflow:hidden;padding-top:0}
+.toggle-sidebar{position:absolute;left:10px;top:12px;z-index:25;background:#2c3e50;border:none;width:38px;height:38px;border-radius:50%;color:#fff;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.3);transition:.2s}
+.toggle-sidebar:hover{background:#e67e22}
+.stats-sidebar{position:absolute;right:0;top:0;width:380px;height:100vh;background:rgba(0,0,0,.75);backdrop-filter:blur(12px);border-left:1px solid rgba(255,215,150,.3);display:flex;flex-direction:column;overflow-y:auto;z-index:20;transform:translateX(100%);transition:transform .25s ease;box-shadow:-2px 0 10px rgba(0,0,0,.3)}
+.stats-sidebar.open{transform:translateX(0)}
+.toggle-stats{position:absolute;right:10px;top:12px;z-index:25;background:#2c3e50;border:none;width:38px;height:38px;border-radius:50%;color:#fff;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.3);transition:.2s}
+.toggle-stats:hover{background:#e67e22}
+.stats-header{padding:16px 20px;border-bottom:1px solid rgba(255,215,150,.3);font-weight:bold;color:#FFD966;font-size:1.1rem;display:flex;justify-content:space-between;align-items:center}
+.stats-header button{background:none;border:none;color:#ffaa66;font-size:1.3rem;cursor:pointer;padding:0 6px;border-radius:50%;transition:.2s}
+.stats-header button:hover{background:rgba(255,100,100,.3);color:#fff}
+.stats-content{flex:1;overflow-y:auto;padding:12px 16px}
+.zone-group{margin-bottom:20px;border-radius:16px;background:rgba(0,0,0,.4);overflow:hidden}
+.zone-header{background:rgba(230,126,34,.2);padding:10px 14px;font-weight:bold;color:#FFD966;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,215,150,.2);transition:.1s}
+.zone-header:hover{background:rgba(230,126,34,.4)}
+.zone-name{font-size:.95rem;display:flex;align-items:center;gap:8px}
+.zone-total{font-size:.75rem;background:rgba(0,0,0,.5);padding:2px 8px;border-radius:20px}
+.table-list-stats{list-style:none;margin:0;padding:0;max-height:0;overflow:hidden;transition:max-height .25s ease-out}
+.table-list-stats.open{max-height:500px;overflow-y:auto}
+.table-list-stats li{padding:8px 16px;border-bottom:1px solid rgba(255,255,200,.1);display:flex;justify-content:space-between;font-size:.8rem;color:#eee}
+.table-list-stats li:hover{background:rgba(255,215,150,.1)}
+.table-id{font-weight:bold;font-family:monospace}
+.table-id-open{color:#2ecc71}.table-id-closed{color:#95a5a6}
+.table-win{font-family:monospace;font-weight:bold}
+.win-positive{color:#2ecc71}.win-negative{color:#e74c3c}.win-zero{color:#aaa}
+.stats-footer{padding:10px;text-align:center;font-size:.7rem;color:#aaa;border-top:1px solid rgba(255,215,150,.2)}
+.floor-tabs{display:flex;flex-wrap:wrap;gap:8px;padding:16px;border-bottom:1px solid rgba(255,255,200,.2);align-items:center}
+.floor-btn{background:#2c3e50;border:none;padding:8px 12px;border-radius:28px;font-size:.9rem;font-weight:bold;color:#ddd;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s}
+.floor-btn.active{background:linear-gradient(135deg,#e67e22,#f39c12);color:#fff;box-shadow:0 0 8px rgba(230,126,34,.5)}
+.floor-actions{display:inline-flex;gap:4px;margin-left:6px}
+.floor-actions button{background:rgba(0,0,0,.5);border:none;color:#fff;font-size:.7rem;width:20px;height:20px;border-radius:20px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+.floor-actions button:hover{background:#e67e22}
+.add-floor-btn{background:#27ae60;border:none;padding:8px 12px;border-radius:28px;color:#fff;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-size:.9rem}
+.collapsible-section{margin:8px 12px 12px 12px;background:rgba(0,0,0,.4);border-radius:20px;overflow:hidden;border:1px solid rgba(255,215,150,.2)}
+.collapsible-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(230,126,34,.2);cursor:pointer;font-weight:bold;color:#FFD966;font-size:.9rem;transition:.1s}
+.collapsible-header:hover{background:rgba(230,126,34,.35)}
+.collapsible-header span:first-child{display:flex;align-items:center;gap:8px}
+.collapsible-icon{font-size:1rem;transition:transform .2s}
+.collapsible-content{max-height:0;overflow:hidden;transition:max-height .3s ease-out;background:rgba(0,0,0,.2)}
+.collapsible-content.open{max-height:320px;overflow-y:auto}
+.layout-buttons{display:flex;flex-wrap:wrap;gap:6px;padding:12px 12px 8px 12px}
+.layout-btn{background:#2c3e50;border:none;padding:4px 10px;border-radius:20px;color:#fff;font-size:.7rem;cursor:pointer;transition:.1s}
+.layout-btn:hover{background:#e67e22}
+.toolbar{padding:12px 16px;display:flex;gap:8px;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,200,.2)}
+.tool-btn{background:#2c3e50;border:none;padding:6px 12px;border-radius:24px;color:#ecf0f1;font-size:.8rem;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+.tool-btn.danger{background:#c0392b}.tool-btn.undo{background:#e67e22}.tool-btn.add{background:#27ae60}.tool-btn.new-type{background:#3498db}.tool-btn.excel{background:#2c6e3c}.tool-btn.load{background:#9b59b6}.tool-btn.decor{background:#8e44ad}
+.clear-btn-inside{margin:0 12px 12px 12px}
+.clear-btn-inside .tool-btn{width:100%;background:#c0392b;justify-content:center}
+.layout-tip{font-size:.7rem;color:#FFD966;padding:4px 12px 0 12px;opacity:.8}
+.table-list{flex:1;overflow-y:auto;padding:12px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start}
+.draggable-table{background:#2c3e50;border-radius:12px;padding:8px;width:100%;text-align:center;cursor:grab;transition:.1s;font-size:.75rem;font-weight:bold;color:#fff;display:flex;flex-direction:column;gap:6px;border:1px solid rgba(255,215,150,.3)}
+.draggable-table:active{cursor:grabbing}
+.table-info-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px}
+.table-num{background:rgba(0,0,0,.5);padding:2px 6px;border-radius:20px;font-size:.75rem}
+.table-zone{background:rgba(0,0,0,.4);padding:2px 6px;border-radius:20px;font-size:.7rem;color:#FFD966}
+.table-type-select{background:#1e2a36;color:#fff;border:none;border-radius:20px;padding:2px 8px;font-size:.7rem;cursor:pointer;flex:1}
+.icon-upload-btn{background:#e67e22;border:none;color:#fff;border-radius:20px;padding:2px 8px;font-size:.65rem;cursor:pointer}
+.action-btn-small{background:#2c3e50;border:none;color:#fff;border-radius:20px;padding:2px 8px;font-size:.65rem;cursor:pointer;display:inline-flex;align-items:center;gap:2px}
+.delete-table-btn{background:#c0392b;border:none;color:#fff;border-radius:20px;width:24px;height:24px;font-size:.7rem;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+.canvas-area{flex:1;position:relative;background-color:#1e2a2f;overflow:auto;touch-action:none;background-image:linear-gradient(rgba(255,255,200,.15) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,200,.15) 1px,transparent 1px);background-repeat:repeat;background-position:0 0;will-change:background-size}
+.floor-plan{position:relative;background-color:transparent;min-width:100%;min-height:100%;width:100%;height:100%;transform-origin:0 0;transition:transform .05s linear}
+.bg-image{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;pointer-events:none;opacity:.6}
+.canvas-table{position:absolute;width:170px;background:#2c3e50;border-radius:12px;display:flex;flex-direction:row;align-items:center;padding:8px;gap:8px;cursor:pointer;box-shadow:0 4px 8px rgba(0,0,0,.3);border:1px solid rgba(255,215,150,.5);transition:box-shadow .1s,background .2s,border-color .2s;touch-action:none;transform-origin:center center}
+.canvas-table.selected{border:3px solid #fc0!important;box-shadow:0 0 0 2px #fa0,0 0 15px 2px rgba(255,204,0,.8);filter:brightness(1.02);z-index:100}
+.canvas-table.open{background:linear-gradient(145deg,#2b8c4a,#1f6e3c);border-color:#a3e4b0}
+.canvas-table.closed{background:linear-gradient(145deg,#4a5562,#2d3748);filter:grayscale(.1)}
+.canvas-table.win-positive{background:linear-gradient(145deg,#2ecc71,#27ae60);border-color:#2ecc71;box-shadow:0 4px 12px rgba(46,204,113,.4)}
+.canvas-table.win-negative{border:2px solid #faa;box-shadow:0 4px 8px rgba(255,170,170,.3)}
+.canvas-table.win-critical{background:linear-gradient(145deg,#e74c3c,#c0392b);border-color:#e74c3c;box-shadow:0 4px 12px rgba(231,76,60,.5)}
+.canvas-table .table-icon{width:44px;height:44px;background:rgba(0,0,0,.3);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;overflow:hidden}
+.canvas-table .table-icon img{width:100%;height:100%;object-fit:contain}
+.canvas-table .table-info{flex:1;display:flex;flex-direction:column;gap:2px;pointer-events:none}
+.canvas-table .table-number{font-weight:bold;font-size:.8rem;background:rgba(0,0,0,.4);display:inline-block;padding:2px 6px;border-radius:20px;width:fit-content}
+.canvas-table .table-type{font-size:.7rem;background:rgba(0,0,0,.5);display:inline-block;padding:2px 6px;border-radius:20px;width:fit-content;font-weight:bold;letter-spacing:.5px;color:#FFD966}
+.canvas-table .table-zone{font-size:.65rem;background:rgba(0,0,0,.4);padding:2px 6px;border-radius:20px;width:fit-content;color:#FFD966}
+.canvas-table .table-status{font-size:.65rem}
+.canvas-table .action-buttons{position:absolute;top:2px;right:4px;display:flex;gap:4px;pointer-events:auto}
+.canvas-table .action-btn{width:20px;height:20px;background:rgba(0,0,0,.6);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:.6rem;cursor:pointer;opacity:.6}
+.canvas-table:hover .action-btn{opacity:1}
+.decor-item{position:absolute;cursor:move;touch-action:none}
+.decor-item .delete-decor,.decor-item .rotate-handle{position:absolute;background:rgba(0,0,0,.6);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;cursor:pointer;opacity:.6}
+.decor-item .delete-decor{top:-8px;right:-8px;background:#c0392b}
+.decor-item .rotate-handle{bottom:-8px;right:-8px;background:#3498db}
+.decor-item:hover .delete-decor,.decor-item:hover .rotate-handle{opacity:1}
+.top-toolbar{position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:35;display:flex;flex-wrap:nowrap;gap:12px;align-items:center;justify-content:center;pointer-events:auto;max-width:95vw}
+.zoom-bar{background:rgba(0,0,0,.8);backdrop-filter:blur(12px);border-radius:48px;padding:6px 16px;display:flex;gap:8px;align-items:center;border:1px solid rgba(255,215,150,.5);box-shadow:0 4px 15px rgba(0,0,0,.3);flex-shrink:0}
+.zoom-btn{background:#2c3e50;border:none;width:36px;height:36px;border-radius:50%;color:#fff;font-size:1.3rem;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:.1s}
+.zoom-btn:hover{background:#e67e22;transform:scale(1.02)}
+#zoomValue{color:#FFD966;font-weight:bold;min-width:58px;text-align:center;font-size:1rem;background:rgba(0,0,0,.4);padding:4px 12px;border-radius:32px;letter-spacing:1px}
+.stats-inline{background:rgba(0,0,0,.8);backdrop-filter:blur(12px);border-radius:48px;padding:6px 16px;display:flex;flex-wrap:nowrap;gap:12px;align-items:center;justify-content:flex-start;border:1px solid rgba(255,215,150,.5);box-shadow:0 4px 15px rgba(0,0,0,.3);overflow-x:auto;scrollbar-width:thin;max-width:100%;flex-shrink:1}
+.stats-inline::-webkit-scrollbar{height:4px}
+.stats-item-inline{display:inline-flex;align-items:center;gap:6px;font-size:.75rem;color:#eee;background:rgba(0,0,0,.4);padding:4px 12px;border-radius:32px;white-space:nowrap;flex-shrink:0}
+.stats-numbers-inline{display:flex;gap:4px}
+.stats-open-inline{color:#2ecc71;font-weight:bold}
+.stats-closed-inline{color:#e74c3c;font-weight:bold}
+.stats-label-inline{font-size:.7rem;color:#FFD966;font-weight:bold;margin-left:2px}
+@media(max-width:900px){.zoom-bar{padding:4px 12px;gap:6px}.zoom-btn{width:30px;height:30px;font-size:1.1rem}#zoomValue{min-width:48px;font-size:.85rem;padding:2px 8px}.stats-item-inline{padding:2px 8px;gap:4px;font-size:.7rem}}
+@media(max-width:700px){.sidebar{width:320px;padding-top:44px}.stats-sidebar{width:320px}.canvas-table{width:150px;padding:6px}.toggle-stats{right:10px}}
+.toast-msg{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.85);backdrop-filter:blur(8px);color:#FFD966;padding:8px 20px;border-radius:40px;font-size:.9rem;font-weight:bold;z-index:200;pointer-events:none;white-space:nowrap;border:1px solid rgba(255,215,150,.5);animation:fadeOut 2s ease forwards}
+@keyframes fadeOut{0%{opacity:1;transform:translateX(-50%) translateY(0)}70%{opacity:1;transform:translateX(-50%) translateY(0)}100%{opacity:0;transform:translateX(-50%) translateY(-10px);visibility:hidden}}
+.rotate-panel{position:absolute;bottom:100px;right:20px;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);border-radius:32px;padding:12px 20px;display:none;flex-direction:column;gap:12px;z-index:30;min-width:260px;border:1px solid rgba(255,215,150,.3)}
+.rotate-panel.show{display:flex}
+.rotate-panel h4{margin:0;color:#FFD966;font-size:.9rem;display:flex;justify-content:space-between;align-items:center}
+.slider-container{display:flex;align-items:center;gap:12px}
+.slider-container input{flex:1;cursor:pointer}
+.angle-value{background:#2c3e50;padding:2px 8px;border-radius:20px;font-size:.8rem;min-width:50px;text-align:center}
+.preset-angles{display:flex;flex-wrap:wrap;gap:8px}
+.preset-btn{background:#2c3e50;border:none;padding:4px 10px;border-radius:20px;color:#fff;font-size:.7rem;cursor:pointer}
+.close-panel{background:#c0392b;border:none;padding:4px;border-radius:20px;color:#fff;font-size:.7rem;cursor:pointer;margin-top:4px}
+.info-panel{position:absolute;background:rgba(0,0,0,.92);backdrop-filter:blur(16px);border-radius:20px;padding:12px 16px;min-width:240px;z-index:40;border:1px solid rgba(255,215,150,.5);pointer-events:auto;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+.info-panel .title{font-weight:bold;font-size:.9rem;color:#FFD966;margin-bottom:8px;border-bottom:1px solid rgba(255,215,150,.3);padding-bottom:4px}
+.info-panel .info-row{display:flex;justify-content:space-between;margin-bottom:6px;font-size:.8rem}
+.info-panel .info-label{color:#aaa}
+.info-panel .info-value{color:#fff;font-weight:bold}
+.info-panel .status-buttons{display:flex;gap:8px;margin-top:10px;justify-content:center}
+.info-panel .status-btn{flex:1;padding:6px 8px;border:none;border-radius:28px;font-size:.75rem;font-weight:bold;cursor:pointer;background:#2c3e50;color:#fff;transition:.1s}
+.info-panel .status-btn.open{background:#2c3e50;color:#2ecc71;border:1px solid #2ecc71}
+.info-panel .status-btn.closed{background:#2c3e50;color:#e74c3c;border:1px solid #e74c3c}
+.info-panel .footer-buttons{display:flex;gap:8px;margin-top:10px;justify-content:center;border-top:1px solid rgba(255,215,150,.3);padding-top:8px}
+.info-panel .footer-btn{flex:1;padding:4px 8px;border:none;border-radius:20px;font-size:.7rem;cursor:pointer;background:#2c3e50;color:#fff;text-align:center}
+.info-panel .footer-btn.edit{background:#e67e22;color:#fff}
+.info-panel .footer-btn.delete{background:#c0392b;color:#fff}
+.info-panel .footer-btn.close{background:#2c3e50;color:#ddd}
+.bg-control{margin:12px;display:flex;gap:8px}
+.bg-upload,.bg-delete{flex:1;padding:8px;background:#2c3e50;border-radius:20px;text-align:center;font-size:.75rem;cursor:pointer;color:#FFD966}
+.bg-delete{background:#c0392b;color:#fff}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:1000;justify-content:center;align-items:center}
+.modal-content{background:#1e2a36;border-radius:32px;padding:24px;max-width:400px;width:90%;color:#fff}
+.modal-content input,.modal-content select{width:100%;padding:8px;margin:10px 0;border-radius:20px;border:none;background:#2c3e50;color:#fff}
+.modal-content button{background:#e67e22;border:none;padding:8px;border-radius:28px;width:100%;color:#fff;font-weight:bold;cursor:pointer;margin-top:8px}
+.icon-upload-preview{display:flex;align-items:center;gap:10px;margin:10px 0}
+.icon-preview-box{width:48px;height:48px;background:#2c3e50;border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.type-icon-input{display:flex;gap:8px;align-items:center}
+.login-overlay,.casino-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.92);backdrop-filter:blur(12px);z-index:9999;display:flex;align-items:center;justify-content:center;color:#fff;padding:20px;box-sizing:border-box}
+.casino-overlay{display:none}
+.login-container{background:#1e2a36;padding:32px;border-radius:20px;width:100%;max-width:360px;border:1px solid rgba(255,215,150,.3)}
+.login-container h2{margin-top:0;color:#FFD966}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;margin-bottom:4px;font-size:.85rem;color:#aaa}
+.form-group input{width:100%;padding:10px;border-radius:12px;border:1px solid #2c3e50;background:#2c3e50;color:#fff;box-sizing:border-box}
+.login-btn,.signup-btn{width:100%;padding:10px;border-radius:24px;border:none;font-weight:bold;cursor:pointer;margin-top:8px}
+.login-btn{background:#e67e22;color:#fff}
+.login-error{color:#e74c3c;font-size:.8rem;margin-top:12px;min-height:1em}
+.casino-container{background:#1e2a36;padding:28px;border-radius:20px;width:100%;max-width:640px;max-height:90vh;display:flex;flex-direction:column;border:1px solid rgba(255,215,150,.3);box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.casino-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid rgba(255,215,150,.2)}
+.casino-header h2{margin:0;color:#FFD966;font-size:1.2rem}
+.user-label{font-size:.75rem;color:#aaa;margin-right:12px}
+.logout-btn{background:#c0392b;border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:.9rem}
+.casino-list{flex:1;overflow-y:auto;margin-bottom:16px;min-height:120px;max-height:50vh}
+.casino-item{background:#2c3e50;border-radius:14px;padding:14px 18px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:.15s;border:1px solid rgba(255,215,150,.15)}
+.casino-item:hover{background:#34495e;border-color:rgba(255,215,150,.5);transform:translateY(-1px)}
+.casino-info{display:flex;flex-direction:column;gap:4px}
+.casino-name{font-weight:bold;font-size:1rem;color:#FFD966}
+.casino-meta{font-size:.72rem;color:#aaa}
+.casino-del{background:#c0392b;border:none;color:#fff;padding:6px 12px;border-radius:20px;font-size:.72rem;cursor:pointer}
+.casino-del:hover{background:#e74c3c}
+.casino-actions{text-align:center;display:flex;justify-content:center;gap:12px;}
+.create-casino-btn{background:#27ae60;border:none;color:#fff;padding:10px 22px;border-radius:26px;font-weight:bold;font-size:.9rem;cursor:pointer}
+.create-casino-btn:hover{background:#2ecc71}
+.dev-mode-btn{background:#2c3e50;border:none;color:#aaa;padding:10px 22px;border-radius:26px;font-weight:bold;font-size:.9rem;cursor:pointer;}
+.dev-mode-btn:hover{background:#34495e;color:#fff;}
+.casino-empty{text-align:center;color:#aaa;padding:30px 20px;font-size:.85rem}
+</style>
+</head>
+<body>
+<div id="loginOverlay" class="login-overlay">
+  <div class="login-container">
+    <h2>🎲 娱乐场 Floor Plan</h2>
+    <p style="color:#aaa;font-size:.85rem;">请登入以继续</p>
+    <div class="form-group"><label>用户名</label><input type="text" id="loginUser" placeholder="请输入用户名" autocomplete="username" value="admin"></div>
+    <div class="form-group"><label>密码</label><input type="password" id="loginPwd" placeholder="••••••••" autocomplete="current-password"></div>
+    <button id="loginBtn" class="login-btn">登入</button>
+    <p id="loginError" class="login-error"></p>
+  </div>
+</div>
+
+<div id="casinoOverlay" class="casino-overlay">
+  <div class="casino-container">
+    <div class="casino-header">
+      <h2>🏢 选择娱乐场</h2>
+      <div><span id="userLabel" class="user-label">Admin</span><button id="logoutBtn" class="logout-btn" title="登出">🚪</button></div>
+    </div>
+    <div id="casinoList" class="casino-list"></div>
+    <div class="casino-actions">
+      <button id="createCasinoBtn" class="create-casino-btn">➕ 新增娱乐场</button>
+      <button id="devModeBtn" class="dev-mode-btn">⚙️ 开发者模式</button>
+    </div>
+  </div>
+</div>
+
+<div class="app" id="appDiv" style="display:none;">
+  <button class="toggle-sidebar" id="toggleSidebarBtn">☰</button>
+  <div class="sidebar" id="sidebar">
+    <div style="padding:0 16px;color:#FFD966;font-size:.75rem;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <span>🏢 <span id="currentCasinoLabel"></span></span>
+      <button id="switchCasinoBtn" style="background:#8e44ad;border:none;color:#fff;padding:4px 10px;border-radius:20px;font-size:.7rem;cursor:pointer;">切换</button>
+    </div>
+    <div class="floor-tabs" id="floorTabsContainer"></div>
+    <div class="collapsible-section">
+      <div class="collapsible-header" id="collapsibleHeader"><span>📐 布置工具</span><span class="collapsible-icon" id="collapseIcon">▼</span></div>
+      <div class="collapsible-content" id="collapsibleContent">
+        <div class="layout-tip">💡 选中桌子后使用对齐/分布功能</div>
+        <div class="layout-buttons">
+          <button class="layout-btn" id="alignLeft">⬅️ 左对齐</button>
+          <button class="layout-btn" id="alignRight">➡️ 右对齐</button>
+          <button class="layout-btn" id="alignCenterH">⬅️➡️ 水平居中</button>
+          <button class="layout-btn" id="alignCenterV">⬆️⬇️ 垂直居中</button>
+          <button class="layout-btn" id="distributeHoriz">↔️ 水平等距</button>
+          <button class="layout-btn" id="distributeVert">↕️ 垂直等距</button>
+        </div>
+        <div class="clear-btn-inside"><button class="tool-btn danger" id="clearBtn">🗑️ 清空布局 (当前楼层)</button></div>
+      </div>
+    </div>
+    <div class="toolbar">
+      <button class="tool-btn undo" id="undoBtn">↩️ 撤销</button>
+      <button class="tool-btn add" id="addTableBtn">➕ 添加桌子</button>
+      <button class="tool-btn new-type" id="newTypeBtn">✨ 新增桌型</button>
+      <button class="tool-btn excel" id="excelImportBtn">📊 导入 Excel</button>
+      <button class="tool-btn load" id="loadArchiveBtn">📂 加载存档</button>
+      <button class="tool-btn decor" id="uploadDecorBtn">🖼️ 上传装饰</button>
+    </div>
+    <div style="padding:8px 16px;font-size:.7rem;color:#FFD966;">📌 未放置桌子 (拖拽至右侧) &nbsp; 💡 多选: Ctrl+点击</div>
+    <div class="table-list" id="tableList"></div>
+    <div class="bg-control">
+      <div class="bg-upload" id="bgUploadBtn">🖼️ 上传背景图</div>
+      <div class="bg-delete" id="bgDeleteBtn">🗑️ 删除背景图</div>
+    </div>
+  </div>
+
+  <button class="toggle-stats" id="toggleStatsBtn">☰</button>
+  <div class="stats-sidebar" id="statsSidebar">
+    <div class="stats-header"><span>📋 场区营业明细</span><button id="closeStatsSidebar">✖</button></div>
+    <div class="stats-content" id="statsContent"></div>
+    <div class="stats-footer">🛜 当前楼层: <span id="currentFloorLabel"></span></div>
+  </div>
+
+  <div class="canvas-area" id="canvasArea"><div class="floor-plan" id="floorPlan"><img id="bgImage" class="bg-image" style="display:none;"></div></div>
+
+  <div class="top-toolbar">
+    <div class="zoom-bar">
+      <button class="zoom-btn" id="zoomOut">−</button>
+      <span id="zoomValue">100%</span>
+      <button class="zoom-btn" id="zoomIn">+</button>
+      <button class="zoom-btn" id="zoomReset">↺</button>
+      <button class="zoom-btn" id="saveBtn" title="导出备份">💾</button>
+    </div>
+    <div class="stats-inline" id="statsInline"></div>
+  </div>
+</div>
+
+<div id="rotatePanel" class="rotate-panel"><h4>🔄 调整旋转角度</h4><div class="slider-container"><input type="range" id="angleSlider" min="0" max="360" step="1" value="0"><span class="angle-value" id="angleValue">0°</span></div><div class="preset-angles"></div><button class="close-panel" id="closeRotatePanel">关闭</button></div>
+<div id="addTableModal" class="modal"><div class="modal-content"><h3>添加新桌子</h3><input type="text" id="newTableId" placeholder="桌号"><input type="text" id="newZoneCode" placeholder="场区代号"><select id="newTableType"></select><div class="icon-upload-preview"><div class="icon-preview-box" id="newIconPreview"></div><button type="button" id="uploadIconBtn" style="background:#2c3e50;">📁 上传图标</button><button type="button" id="clearIconBtn" style="background:#c0392b;">✖ 清除</button></div><input type="file" id="iconFileInput" accept="image/*" style="display:none;"><button id="confirmAddTable">确认添加</button><button id="cancelAddTable">取消</button></div></div>
+<div id="newTypeModal" class="modal"><div class="modal-content"><h3>新增桌型</h3><input type="text" id="newTypeCode" placeholder="代码"><input type="text" id="newTypeName" placeholder="名称"><div class="type-icon-input"><input type="text" id="newTypeEmoji" placeholder="Emoji"><button type="button" id="newTypeUploadIconBtn">📁 上传</button></div><div class="icon-preview-box" id="newTypeIconPreview"></div><input type="file" id="newTypeIconFile" accept="image/*" style="display:none;"><button id="confirmNewType">确认新增</button><button id="cancelNewType">取消</button></div></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
+import { getDatabase, ref, onValue, update, remove, set, get } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-database.js";
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyD6joRU37qneAlSWgT4_UD4qGiIESXG4ro",
+  authDomain: "casino-floorplan.firebaseapp.com",
+  databaseURL: "https://casino-floorplan-default-rtdb.firebaseio.com",
+  projectId: "casino-floorplan",
+  storageBucket: "casino-floorplan.firebasestorage.app",
+  messagingSenderId: "887714316510",
+  appId: "1:887714316510:web:d2151e108ef545ba30c24f"
+};
+
+// Initialize Firebase
+const fbApp = initializeApp(firebaseConfig);
+const db = getDatabase(fbApp);
+
+// ========== 常量与状态 ==========
+const DEFAULT_TABLE_TYPES = { BA:{name:'百家乐',emoji:'🎲'}, BJ:{name:'二十一点',emoji:'🃏'}, SSB:{name:'骰宝',emoji:'🎰'}, CS:{name:'加勒比海',emoji:'🌊'}, AR:{name:'轮盘',emoji:'🎡'}, TCB:{name:'三公百家乐',emoji:'🃏'}, TCP:{name:'富贵三公',emoji:'👑'}, FTC:{name:'富贵三宝',emoji:'💎'}, NCBA:{name:'免佣百家乐',emoji:'💰'}, FT:{name:'番摊',emoji:'🎲'}, PG:{name:'牌九',emoji:'🀄️'} };
+let TABLE_TYPES = { ...DEFAULT_TABLE_TYPES };
+let customTypes = {};
+let TYPE_LIST = Object.keys(TABLE_TYPES);
+
+let currentCasinoId = null, currentFloor = null;
+let floorData = {}, availableTables = {}, decorElements = [];
+let selectedTableIds = new Set();
+let currentZoom = 1.0, currentInfoPanel = null, currentRotatingTable = null, rotateTimeout = null;
+let nextDecorId = 100;
+let tempCustomIcon = null, newTypeTempIcon = null;
+let casinoListUnsub = null, casinoDataUnsub = null, bgImageUnsub = null;
+let historyStack = [], historyIndex = -1;
+const MAX_HISTORY = 20;
+let _skipCapture = false;
+
+// ========== DOM 引用 ==========
+const $ = id => document.getElementById(id);
+const canvasAreaDiv = $('canvasArea'), floorPlanDiv = $('floorPlan'), zoomValueSpan = $('zoomValue');
+const tableListDiv = $('tableList'), bgImage = $('bgImage'), statsInline = $('statsInline');
+const statsContent = $('statsContent'), currentFloorLabel = $('currentFloorLabel');
+const floorTabsContainer = $('floorTabsContainer'), statsSidebar = $('statsSidebar');
+const addTableModal = $('addTableModal'), newTableIdInput = $('newTableId'), newZoneCodeInput = $('newZoneCode');
+const newTableTypeSelect = $('newTableType'), newIconPreview = $('newIconPreview'), iconFileInput = $('iconFileInput');
+const newTypeModal = $('newTypeModal'), newTypeCodeInput = $('newTypeCode'), newTypeNameInput = $('newTypeName');
+const newTypeEmojiInput = $('newTypeEmoji'), newTypeIconFile = $('newTypeIconFile'), newTypeIconPreview = $('newTypeIconPreview');
+const rotatePanel = $('rotatePanel'), angleSlider = $('angleSlider'), angleValue = $('angleValue');
+const loginOverlay = $('loginOverlay'), casinoOverlay = $('casinoOverlay'), appDiv = $('appDiv');
+const casinoListDiv = $('casinoList'), loginError = $('loginError');
+
+// ========== 工具函数 ==========
+function cp(p){ return `casinos/${currentCasinoId}/${p}`; }
+function cid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function showToast(msg){ const t=document.createElement('div'); t.className='toast-msg'; t.innerText=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2000); }
+function formatWin(w){ if(w===undefined) return '0'; let n=Number(w); if(isNaN(n)) return '0'; return n>0?`+${n.toLocaleString()}`:(n<0?`(${Math.abs(n).toLocaleString()})`:'0'); }
+function clearSelection(){ document.querySelectorAll('.canvas-table.selected').forEach(el=>el.classList.remove('selected')); selectedTableIds.clear(); }
+function esc(s){ return String(s).replace(/[&<>]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+async function batch(upd){ if(Object.keys(upd).length===0) return; await update(ref(db), upd); }
+
+// ========== 登录逻辑 ==========
+function performLogin() {
+  const user = $('loginUser').value.trim();
+  const pwd = $('loginPwd').value;
+  const storedPwd = localStorage.getItem('adminPwd') || '123456';
+  loginError.textContent = '';
+  if (user === 'admin' && pwd === storedPwd) {
+    loginOverlay.style.display = 'none';
+    sessionStorage.setItem('loggedIn', 'true');
+    casinoOverlay.style.display = 'flex';
+    bindCasinoList();
+  } else {
+    loginError.textContent = '用户名或密码错误';
+  }
+}
+$('loginBtn').onclick = performLogin;
+$('loginPwd').addEventListener('keypress', e => { if (e.key === 'Enter') performLogin(); });
+
+$('logoutBtn').onclick = () => {
+  sessionStorage.removeItem('loggedIn');
+  casinoOverlay.style.display = 'none';
+  appDiv.style.display = 'none';
+  loginOverlay.style.display = 'flex';
+  if(casinoDataUnsub) { casinoDataUnsub(); casinoDataUnsub = null; }
+  if(bgImageUnsub) { bgImageUnsub(); bgImageUnsub = null; }
+  if(casinoListUnsub) { casinoListUnsub(); casinoListUnsub = null; }
+};
+
+// 启动时检查是否已登录
+if (sessionStorage.getItem('loggedIn') === 'true') {
+  loginOverlay.style.display = 'none';
+  casinoOverlay.style.display = 'flex';
+  bindCasinoList();
+} else {
+  loginOverlay.style.display = 'flex';
+}
+
+// ========== 开发者模式 ==========
+$('devModeBtn').onclick = () => {
+  const devPwd = prompt('请输入开发者密码：');
+  if (devPwd === 'Abcd@1234') {
+    const newPwd = prompt('开发者模式已开启\n请输入新的管理员密码（留空则取消修改）：');
+    if (newPwd && newPwd.trim() !== '') {
+      localStorage.setItem('adminPwd', newPwd.trim());
+      alert('密码修改成功！下次登录请使用新密码。');
+    }
+  } else if (devPwd !== null) {
+    alert('开发者密码错误！');
+  }
+};
+
+// ========== 快照与撤销 ==========
+function captureState(){
+  if(_skipCapture){ _skipCapture=false; return; }
+  const s = JSON.parse(JSON.stringify({floorData, availableTables, decorElements, currentFloor}));
+  if(historyIndex < historyStack.length-1) historyStack = historyStack.slice(0, historyIndex+1);
+  historyStack.push(s);
+  if(historyStack.length > MAX_HISTORY) historyStack.shift();
+  historyIndex = historyStack.length-1;
+}
+async function undo(){
+  if(historyIndex <= 0){ alert('没有可撤销的操作'); return; }
+  historyIndex--;
+  const s = historyStack[historyIndex];
+  const base = `casinos/${currentCasinoId}`;
+  const upd = {};
+  upd[`${base}/floors`] = null;
+  upd[`${base}/decorations`] = null;
+  upd[`${base}/availableTables`] = null;
+  Object.keys(s.floorData).forEach(fn => s.floorData[fn].forEach(t=>{
+    upd[`${base}/floors/${fn}/${t.id}`] = { x:t.x, y:t.y, status:t.status, type:t.type, zoneCode:t.zoneCode||'', customIcon:t.customIcon||null, angle:t.angle||0, win:t.win||0 };
+  }));
+  Object.keys(s.availableTables).forEach(id => { upd[`${base}/availableTables/${id}`] = s.availableTables[id]; });
+  s.decorElements.forEach(d => { upd[`${base}/decorations/${d.floor}/${d.id}`] = { url:d.url, x:d.x, y:d.y, width:d.width, height:d.height, angle:d.angle }; });
+  _skipCapture = true;
+  try { await batch(upd); showToast('已撤销'); } catch(e){ console.error(e); showToast('撤销失败'); }
+}
+
+// ========== 缩放 ==========
+function applyZoom(){
+  floorPlanDiv.style.transform = `scale(${currentZoom})`;
+  floorPlanDiv.style.transformOrigin = '0 0';
+  zoomValueSpan.innerText = `${Math.round(currentZoom*100)}%`;
+  const g = 40 * currentZoom;
+  canvasAreaDiv.style.backgroundSize = `${g}px ${g}px`;
+}
+function setZoom(z){ z = Math.min(2.0, Math.max(0.5, z)); if(z===currentZoom) return; currentZoom=z; applyZoom(); }
+function adjustCanvasSize(){
+  const tables = floorData[currentFloor]||[];
+  let maxX = 0, maxY = 0;
+  tables.forEach(t=>{ let r=t.x+180,b=t.y+120; if(r>maxX)maxX=r; if(b>maxY)maxY=b; });
+  decorElements.filter(d=>d.floor===currentFloor).forEach(d=>{ let r=d.x+d.width,b=d.y+d.height; if(r>maxX)maxX=r; if(b>maxY)maxY=b; });
+  maxX = Math.max(maxX, canvasAreaDiv.clientWidth);
+  maxY = Math.max(maxY, canvasAreaDiv.clientHeight);
+  floorPlanDiv.style.minWidth = Math.max(maxX, canvasAreaDiv.clientWidth)+'px';
+  floorPlanDiv.style.minHeight = Math.max(maxY, canvasAreaDiv.clientHeight)+'px';
+}
+
+// ========== 图标 ==========
+function getTableIconHtml(table){
+  const info = TABLE_TYPES[table.type];
+  if(!info) return '<div style="font-size:1.5rem;">❓</div>';
+  if(table.customIcon) return `<img src="${table.customIcon}">`;
+  if(info.customIcon) return `<img src="${info.customIcon}">`;
+  return `<div style="font-size:1.5rem;">${info.emoji||'🎲'}</div>`;
+}
+
+// ========== 未放置桌子列表 ==========
+function updateTableList(){
+  tableListDiv.innerHTML = '';
+  const ids = Object.keys(availableTables);
+  if(!ids.length){ tableListDiv.innerHTML = '<div style="color:#aaa;text-align:center;">暂无未放置桌子<br>点击「添加桌子」创建</div>'; return; }
+  ids.forEach(id=>{
+    const info = availableTables[id];
+    const div = document.createElement('div');
+    div.className = 'draggable-table';
+    div.setAttribute('data-id', id);
+    div.setAttribute('draggable','true');
+    div.innerHTML = `<div class="table-info-row"><span class="table-num">#${esc(id)}</span><span class="table-zone">${esc(info.zoneCode||'无场区')}</span><span class="table-zone" style="background:#e67e22;">${esc(info.type)}</span><button class="icon-upload-btn" data-id="${esc(id)}">📷</button><button class="action-btn-small edit-btn" data-id="${esc(id)}">✏️</button><button class="action-btn-small copy-btn" data-id="${esc(id)}">📋</button><button class="delete-table-btn" data-id="${esc(id)}">✖</button></div><div class="table-info-row"><select class="table-type-select" data-id="${esc(id)}">${TYPE_LIST.map(t=>`<option value="${t}" ${t===info.type?'selected':''}>${t} - ${TABLE_TYPES[t]?.name||t}</option>`).join('')}</select></div>`;
+    const sel = div.querySelector('.table-type-select');
+    sel.onchange = async () => {
+      await update(ref(db, cp(`availableTables/${id}`)), { type: sel.value });
+      showToast('桌型已更新');
+    };
+    div.querySelector('.icon-upload-btn').onclick = () => {
+      const inp = document.createElement('input'); inp.type='file'; inp.accept='image/*';
+      inp.onchange = ev => {
+        const file = ev.target.files[0]; if(!file) return;
+        const r = new FileReader();
+        r.onload = async e2 => { await update(ref(db, cp(`availableTables/${id}`)), { customIcon: e2.target.result }); showToast('图标已更新'); };
+        r.readAsDataURL(file);
+      };
+      inp.click();
+    };
+    div.querySelector('.edit-btn').onclick = async e => {
+      e.stopPropagation();
+      const oldId = id, oldZone = info.zoneCode || '', oldType = info.type;
+      const newId = prompt('桌号:', oldId); if(newId===null) return;
+      const newZone = prompt('场区代号:', oldZone); if(newZone===null) return;
+      const newType = prompt('桌型代码:', oldType); if(newType===null) return;
+      if(!newId.trim() || !TABLE_TYPES[newType.toUpperCase()]){ alert('输入无效'); return; }
+      if(newId.trim() !== oldId && isTableIdUsed(newId.trim(), oldId)){ alert('桌号已存在'); return; }
+      const upd = {};
+      upd[cp(`availableTables/${oldId}`)] = null;
+      upd[cp(`availableTables/${newId.trim()}`)] = { type: newType.toUpperCase(), zoneCode: newZone, customIcon: info.customIcon, win: info.win||0 };
+      await batch(upd);
+      showToast('已更新');
+    };
+    div.querySelector('.copy-btn').onclick = async e => {
+      e.stopPropagation();
+      const newId = prompt('新桌号:', id+'_copy'); if(!newId) return;
+      if(isTableIdUsed(newId.trim())){ alert('桌号已存在'); return; }
+      await set(ref(db, cp(`availableTables/${newId.trim()}`)), { type: info.type, zoneCode: info.zoneCode||'', customIcon: info.customIcon||null, win: 0 });
+      showToast('已复制');
+    };
+    div.querySelector('.delete-table-btn').onclick = async e => {
+      e.stopPropagation();
+      if(!confirm(`删除未放置桌子 ${id}？`)) return;
+      await remove(ref(db, cp(`availableTables/${id}`)));
+      showToast('已删除');
+    };
+    div.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', JSON.stringify({ id, ...availableTables[id] }));
+      e.dataTransfer.effectAllowed = 'copy';
+    });
+    tableListDiv.appendChild(div);
+  });
+}
+function isTableIdUsed(id, excludeId=null){
+  if(id===excludeId) return false;
+  for(const f in floorData){ if(floorData[f].some(t=>t.id===id)) return true; }
+  return availableTables[id] !== undefined;
+}
+async function addNewTable(){
+  const id = newTableIdInput.value.trim();
+  if(!id){ alert('请输入桌号'); return; }
+  if(isTableIdUsed(id)){ alert('桌号已存在'); return; }
+  await set(ref(db, cp(`availableTables/${id}`)), {
+    type: newTableTypeSelect.value,
+    zoneCode: newZoneCodeInput.value.trim(),
+    customIcon: tempCustomIcon || null,
+    win: 0
+  });
+  addTableModal.style.display = 'none';
+  newTableIdInput.value = ''; newZoneCodeInput.value = ''; tempCustomIcon = null; newIconPreview.innerHTML = '';
+  showToast('桌子已添加');
+}
+
+// ========== 渲染当前楼层 ==========
+function renderCurrentFloor(){
+  document.querySelectorAll('.canvas-table').forEach(t=>t.remove());
+  const tables = floorData[currentFloor] || [];
+  tables.forEach(t => { const card = createTableElement(t); floorPlanDiv.appendChild(card); makeDraggable(card); if(selectedTableIds.has(t.id)) card.classList.add('selected'); });
+  adjustCanvasSize();
+}
+
+function createTableElement(table){
+  const div = document.createElement('div');
+  let winClass = '';
+  if(table.status==='open'){
+    if(table.win>0) winClass='win-positive';
+    else if(table.win<0) winClass = Math.abs(table.win)>=1000000 ? 'win-critical' : 'win-negative';
+  }
+  div.className = `canvas-table ${table.status} ${winClass}`;
+  div.setAttribute('data-id', table.id);
+  div.style.left = `${table.x}px`;
+  div.style.top = `${table.y}px`;
+  div.style.transform = `rotate(${table.angle||0}deg)`;
+  div.innerHTML = `<div class="table-icon">${getTableIconHtml(table)}</div><div class="table-info"><div class="table-number">桌号 ${esc(table.id)}</div><div class="table-type">${esc(table.type)}</div><div class="table-zone">${esc(table.zoneCode||'无场区')}</div><div class="table-status">${table.status==='open'?'🟢 开放':'⚫ 关闭'}</div></div><div class="action-buttons"><div class="action-btn rotate-btn">🔄</div></div>`;
+  div.addEventListener('click', e => {
+    if(e.target.closest('.action-btn')) return;
+    e.stopPropagation();
+    if(e.ctrlKey||e.metaKey){ if(selectedTableIds.has(table.id)){ selectedTableIds.delete(table.id); div.classList.remove('selected'); } else { selectedTableIds.add(table.id); div.classList.add('selected'); } }
+    else { clearSelection(); selectedTableIds.add(table.id); div.classList.add('selected'); }
+    if(currentInfoPanel) currentInfoPanel.remove();
+    showInfoPanel(div, table);
+  });
+  div.querySelector('.rotate-btn').addEventListener('click', e => { e.stopPropagation(); showRotatePanel(div, table.angle||0); });
+  return div;
+}
+
+// ========== 拖拽 ==========
+function makeDraggable(el){
+  interact(el).draggable({
+    inertia: false,
+    listeners: {
+      start: () => { if(casinoDataUnsub){ casinoDataUnsub(); casinoDataUnsub = null; } },
+      move: e => {
+        const dx = e.dx/currentZoom, dy = e.dy/currentZoom;
+        if(selectedTableIds.size > 1){
+          for(const id of selectedTableIds){
+            const card = document.querySelector(`.canvas-table[data-id="${CSS.escape(id)}"]`);
+            if(card){ card.style.left = (parseFloat(card.style.left)||0)+dx+'px'; card.style.top = (parseFloat(card.style.top)||0)+dy+'px'; }
+          }
+        } else {
+          el.style.left = (parseFloat(el.style.left)||0)+dx+'px';
+          el.style.top = (parseFloat(el.style.top)||0)+dy+'px';
+        }
+      },
+      end: async e => {
+        const upd = {};
+        if(selectedTableIds.size > 1){
+          for(const id of selectedTableIds){
+            const card = document.querySelector(`.canvas-table[data-id="${CSS.escape(id)}"]`);
+            if(card){ const x = parseFloat(card.style.left); const y = parseFloat(card.style.top); upd[cp(`floors/${currentFloor}/${id}/x`)] = x; upd[cp(`floors/${currentFloor}/${id}/y`)] = y; }
+          }
+        } else {
+          const id = el.getAttribute('data-id');
+          upd[cp(`floors/${currentFloor}/${id}/x`)] = parseFloat(el.style.left);
+          upd[cp(`floors/${currentFloor}/${id}/y`)] = parseFloat(el.style.top);
+        }
+        try { await batch(upd); } catch(err){ console.error(err); showToast('同步失败'); }
+        adjustCanvasSize();
+        bindCasinoData(currentCasinoId);
+      }
+    }
+  });
+}
+
+// ========== 信息面板 ==========
+function showInfoPanel(card, t){
+  if(currentInfoPanel) currentInfoPanel.remove();
+  const winF = formatWin(t.win);
+  const winC = t.win>0?'win-positive':(t.win<0?'win-negative':'');
+  const panel = document.createElement('div');
+  panel.className = 'info-panel';
+  panel.innerHTML = `<div class="title">📋 桌子信息</div><div class="info-row"><span class="info-label">桌号：</span><span class="info-value">${esc(t.id)}</span></div><div class="info-row"><span class="info-label">桌型：</span><span class="info-value">${esc(t.type)}</span></div><div class="info-row"><span class="info-label">场区：</span><span class="info-value">${esc(t.zoneCode||'无')}</span></div><div class="info-row"><span class="info-label">营业额：</span><span class="info-value ${winC}">💰 ${winF}</span></div><div class="info-row"><span class="info-label">状态：</span><span class="info-value">${t.status==='open'?'开放中':'已关闭'}</span></div><div class="status-buttons"><button class="status-btn open">🟢 开放</button><button class="status-btn closed">⚫ 关闭</button></div><div class="footer-buttons"><button class="footer-btn edit">✏️ 编辑</button><button class="footer-btn delete">🗑️ 删除</button><button class="footer-btn close">关闭</button></div>`;
+  const rect = card.getBoundingClientRect(), cRect = canvasAreaDiv.getBoundingClientRect();
+  let left = rect.right+10, top = rect.top;
+  if(left+240 > cRect.right) left = rect.left-240;
+  if(top+240 > cRect.bottom) top = cRect.bottom-250;
+  if(top < cRect.top) top = cRect.top+10;
+  panel.style.left = left+'px'; panel.style.top = top+'px';
+  panel.querySelector('.status-btn.open').onclick = async () => {
+    await update(ref(db, cp(`floors/${currentFloor}/${t.id}`)), { status: 'open' });
+    showToast('已开放');
+    panel.remove(); currentInfoPanel = null;
+  };
+  panel.querySelector('.status-btn.closed').onclick = async () => {
+    await update(ref(db, cp(`floors/${currentFloor}/${t.id}`)), { status: 'closed' });
+    showToast('已关闭');
+    panel.remove(); currentInfoPanel = null;
+  };
+  panel.querySelector('.footer-btn.edit').onclick = async () => {
+    panel.remove(); currentInfoPanel = null;
+    const oldId = t.id;
+    const newId = prompt('新桌号:', oldId); if(newId===null) return;
+    const newZone = prompt('场区代号:', t.zoneCode||''); if(newZone===null) return;
+    if(!newId.trim()){ alert('桌号不能为空'); return; }
+    if(newId.trim()!==oldId && isTableIdUsed(newId.trim(), oldId)){ alert('桌号已存在'); return; }
+    const upd = {};
+    if(newId.trim()!==oldId){
+      upd[cp(`floors/${currentFloor}/${oldId}`)] = null;
+      upd[cp(`floors/${currentFloor}/${newId.trim()}`)] = { x:t.x, y:t.y, status:t.status, type:t.type, zoneCode:newZone, customIcon:t.customIcon||null, angle:t.angle||0, win:t.win||0 };
+    } else {
+      upd[cp(`floors/${currentFloor}/${oldId}/zoneCode`)] = newZone;
+    }
+    await batch(upd);
+    showToast('已更新');
+  };
+  panel.querySelector('.footer-btn.delete').onclick = async () => {
+    if(!confirm(`删除桌子 ${t.id}？`)) return;
+    const upd = {};
+    upd[cp(`floors/${currentFloor}/${t.id}`)] = null;
+    upd[cp(`availableTables/${t.id}`)] = { type:t.type, zoneCode:t.zoneCode||'', customIcon:t.customIcon||null, win:t.win||0 };
+    await batch(upd);
+    panel.remove(); currentInfoPanel = null;
+    showToast('已移至未放置');
+  };
+  panel.querySelector('.footer-btn.close').onclick = () => { panel.remove(); currentInfoPanel = null; };
+  document.body.appendChild(panel);
+  currentInfoPanel = panel;
+  setTimeout(() => {
+    const h = e => { if(!panel.contains(e.target) && e.target!==card && !card.contains(e.target)){ panel.remove(); currentInfoPanel=null; document.removeEventListener('click',h); } };
+    document.addEventListener('click', h);
+  }, 100);
+}
+
+// ========== Drop ==========
+function initDropTarget(){
+  floorPlanDiv.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect='copy'; });
+  floorPlanDiv.addEventListener('drop', async e => {
+    e.preventDefault();
+    let id, info;
+    try { const p = JSON.parse(e.dataTransfer.getData('text/plain')); id = p.id; info = p; } catch(err){ return; }
+    if(!id) return;
+    const rect = floorPlanDiv.getBoundingClientRect();
+    let x = (e.clientX - rect.left + canvasAreaDiv.scrollLeft) / currentZoom;
+    let y = (e.clientY - rect.top + canvasAreaDiv.scrollTop) / currentZoom;
+    x = Math.max(0, x); y = Math.max(0, y);
+    const upd = {};
+    upd[cp(`availableTables/${id}`)] = null;
+    upd[cp(`floors/${currentFloor}/${id}`)] = { x, y, status:'closed', type: info.type, zoneCode: info.zoneCode||'', customIcon: info.customIcon||null, angle:0, win: info.win||0 };
+    await batch(upd);
+    showToast('已放置');
+  });
+}
+
+// ========== 对齐/分布 ==========
+function getSelected(){ return (floorData[currentFloor]||[]).filter(t => selectedTableIds.has(t.id)); }
+async function applyLayout(fn){
+  const tables = getSelected();
+  if(tables.length < 2) return;
+  fn(tables);
+  const upd = {};
+  tables.forEach(t => { upd[cp(`floors/${currentFloor}/${t.id}/x`)] = t.x; upd[cp(`floors/${currentFloor}/${t.id}/y`)] = t.y; });
+  await batch(upd);
+  showToast('已应用');
+}
+function alignLeft(){ applyLayout(ts=>{ const m=Math.min(...ts.map(t=>t.x)); ts.forEach(t=>t.x=m); }); }
+function alignRight(){ applyLayout(ts=>{ const m=Math.max(...ts.map(t=>t.x+170)); ts.forEach(t=>t.x=m-170); }); }
+function alignCenterH(){ applyLayout(ts=>{ const c=(Math.min(...ts.map(t=>t.x))+Math.max(...ts.map(t=>t.x+170)))/2-85; ts.forEach(t=>t.x=c); }); }
+function alignCenterV(){ applyLayout(ts=>{ const c=(Math.min(...ts.map(t=>t.y))+Math.max(...ts.map(t=>t.y+120)))/2-60; ts.forEach(t=>t.y=c); }); }
+function distributeH(){ applyLayout(ts=>{ const s=[...ts].sort((a,b)=>a.x-b.x); const tot=s[s.length-1].x+170-s[0].x; const g=tot/(s.length-1); s.forEach((t,i)=>t.x=s[0].x+i*g); }); }
+function distributeV(){ applyLayout(ts=>{ const s=[...ts].sort((a,b)=>a.y-b.y); const tot=s[s.length-1].y+120-s[0].y; const g=tot/(s.length-1); s.forEach((t,i)=>t.y=s[0].y+i*g); }); }
+
+// ========== 装饰 ==========
+function renderDecorations(){
+  document.querySelectorAll('.decor-item').forEach(el=>el.remove());
+  decorElements.filter(d=>d.floor===currentFloor).forEach(d=>{
+    const div = document.createElement('div');
+    div.className = 'decor-item';
+    div.setAttribute('data-decor-id', d.id);
+    div.style.left = d.x+'px'; div.style.top = d.y+'px'; div.style.width = d.width+'px'; div.style.height = d.height+'px';
+    div.style.transform = `rotate(${d.angle||0}deg)`; div.style.transformOrigin = 'center center';
+    div.innerHTML = `<img src="${d.url}" style="width:100%;height:100%;object-fit:contain;pointer-events:none;"><div class="delete-decor" data-id="${d.id}">✖</div><div class="rotate-handle" data-id="${d.id}">↻</div>`;
+    floorPlanDiv.appendChild(div);
+    makeDecorDraggable(div, d);
+    makeDecorRotatable(div, d);
+    div.querySelector('.delete-decor').onclick = async e => {
+      e.stopPropagation();
+      await remove(ref(db, cp(`decorations/${currentFloor}/${d.id}`)));
+      showToast('已删除装饰');
+    };
+  });
+  adjustCanvasSize();
+}
+function makeDecorDraggable(el, d){
+  interact(el).draggable({
+    inertia: false,
+    listeners: {
+      move: e => { el.style.left = (parseFloat(el.style.left)||0)+e.dx/currentZoom+'px'; el.style.top = (parseFloat(el.style.top)||0)+e.dy/currentZoom+'px'; },
+      end: async () => { await update(ref(db, cp(`decorations/${currentFloor}/${d.id}`)), { x: parseFloat(el.style.left), y: parseFloat(el.style.top) }); adjustCanvasSize(); }
+    }
+  });
+  interact(el).resizable({
+    edges: { left:true, right:true, bottom:true, top:true },
+    listeners: {
+      move: e => {
+        let x = parseFloat(el.style.left)||0, y = parseFloat(el.style.top)||0, w = parseFloat(el.style.width)||100, h = parseFloat(el.style.height)||100;
+        w += e.deltaRect.width; h += e.deltaRect.height;
+        if(w<30) w=30; if(h<30) h=30;
+        el.style.width = w+'px'; el.style.height = h+'px';
+        if(e.deltaRect.left) el.style.left = (x+e.deltaRect.left)+'px';
+        if(e.deltaRect.top) el.style.top = (y+e.deltaRect.top)+'px';
+      },
+      end: async () => { await update(ref(db, cp(`decorations/${currentFloor}/${d.id}`)), { x: parseFloat(el.style.left), y: parseFloat(el.style.top), width: parseFloat(el.style.width), height: parseFloat(el.style.height) }); adjustCanvasSize(); }
+    }
+  });
+}
+function makeDecorRotatable(el, d){
+  const handle = el.querySelector('.rotate-handle'); if(!handle) return;
+  let sA=0, sX=0, sY=0;
+  const mm = e => {
+    const dx = e.clientX-sX, dy = e.clientY-sY;
+    let a = sA + Math.atan2(dy,dx)*180/Math.PI;
+    a = ((a%360)+360)%360;
+    el.style.transform = `rotate(${a}deg)`;
+    d.angle = a;
+  };
+  const mu = async () => { document.removeEventListener('mousemove',mm); document.removeEventListener('mouseup',mu); await update(ref(db, cp(`decorations/${currentFloor}/${d.id}`)), { angle: d.angle }); };
+  handle.addEventListener('mousedown', e => {
+    e.stopPropagation();
+    sX = e.clientX; sY = e.clientY; sA = d.angle||0;
+    document.addEventListener('mousemove', mm);
+    document.addEventListener('mouseup', mu);
+  });
+}
+async function uploadDecor(){
+  const inp = document.createElement('input'); inp.type='file'; inp.accept='image/*';
+  inp.onchange = e => {
+    const file = e.target.files[0]; if(!file) return;
+    const r = new FileReader();
+    r.onload = async ev => {
+      const newId = nextDecorId++;
+      await set(ref(db, cp(`decorations/${currentFloor}/${newId}`)), { url: ev.target.result, x:100, y:100, width:120, height:120, angle:0 });
+      showToast('装饰已添加');
+    };
+    r.readAsDataURL(file);
+  };
+  inp.click();
+}
+
+// ========== 旋转 ==========
+function showRotatePanel(card, angle){ currentRotatingTable = card; angleSlider.value = angle; angleValue.innerText = angle+'°'; rotatePanel.classList.add('show'); }
+async function setTableAngle(card, angle){
+  if(!card) return;
+  card.style.transform = `rotate(${angle}deg)`;
+  const id = card.getAttribute('data-id');
+  if(rotateTimeout) clearTimeout(rotateTimeout);
+  rotateTimeout = setTimeout(async () => {
+    await update(ref(db, cp(`floors/${currentFloor}/${id}`)), { angle });
+    rotateTimeout = null;
+  }, 200);
+}
+function initRotatePanel(){
+  angleSlider.addEventListener('input', e => { const a = parseInt(e.target.value,10); angleValue.innerText = a+'°'; if(currentRotatingTable) setTableAngle(currentRotatingTable, a); });
+  const p = document.querySelector('.preset-angles');
+  [0,45,90,135,180,225,270,315].forEach(d=>{
+    const b = document.createElement('button'); b.className='preset-btn'; b.innerText = d+'°';
+    b.onclick = () => { angleSlider.value=d; angleValue.innerText=d+'°'; if(currentRotatingTable) setTableAngle(currentRotatingTable, d); };
+    p.appendChild(b);
+  });
+  $('closeRotatePanel').onclick = () => rotatePanel.classList.remove('show');
+  canvasAreaDiv.addEventListener('click', e => { if(!e.target.closest('.rotate-panel') && !e.target.closest('.action-btn.rotate-btn')) rotatePanel.classList.remove('show'); });
+}
+
+// ========== 楼层 ==========
+function renderFloorTabs(){
+  floorTabsContainer.innerHTML = '';
+  const keys = Object.keys(floorData);
+  keys.forEach(key => {
+    const btn = document.createElement('button');
+    btn.className = 'floor-btn' + (key===currentFloor ? ' active' : '');
+    btn.innerHTML = `<span>${esc(key)}</span><div class="floor-actions"><button class="edit-floor">✏️</button><button class="del-floor">🗑️</button></div>`;
+    btn.onclick = e => { if(e.target.classList.contains('edit-floor')||e.target.classList.contains('del-floor')) return; switchFloor(key); };
+    btn.querySelector('.edit-floor').onclick = async e => {
+      e.stopPropagation();
+      const newName = prompt('新楼层名:', key);
+      if(!newName || !newName.trim() || newName.trim()===key) return;
+      if(floorData[newName.trim()]){ alert('楼层已存在'); return; }
+      const upd = {};
+      (floorData[key]||[]).forEach(t => { upd[cp(`floors/${newName.trim()}/${t.id}`)] = { x:t.x, y:t.y, status:t.status, type:t.type, zoneCode:t.zoneCode||'', customIcon:t.customIcon||null, angle:t.angle||0, win:t.win||0 }; });
+      upd[cp(`floors/${key}`)] = null;
+      decorElements.filter(d=>d.floor===key).forEach(d => { upd[cp(`decorations/${newName.trim()}/${d.id}`)] = { url:d.url, x:d.x, y:d.y, width:d.width, height:d.height, angle:d.angle }; });
+      upd[cp(`decorations/${key}`)] = null;
+      await batch(upd);
+      if(currentFloor===key) currentFloor = newName.trim();
+      showToast('楼层已重命名');
+    };
+    btn.querySelector('.del-floor').onclick = async e => {
+      e.stopPropagation();
+      if(Object.keys(floorData).length<=1){ alert('至少保留一个楼层'); return; }
+      if(!confirm(`删除楼层 ${key}？桌子将移至未放置`)) return;
+      const upd = {};
+      (floorData[key]||[]).forEach(t => { upd[cp(`availableTables/${t.id}`)] = { type:t.type, zoneCode:t.zoneCode||'', customIcon:t.customIcon||null, win:t.win||0 }; });
+      upd[cp(`floors/${key}`)] = null;
+      upd[cp(`decorations/${key}`)] = null;
+      await batch(upd);
+      showToast('楼层已删除');
+    };
+    floorTabsContainer.appendChild(btn);
+  });
+  const addBtn = document.createElement('button');
+  addBtn.className = 'add-floor-btn';
+  addBtn.innerText = '+ 添加楼层';
+  addBtn.onclick = async () => {
+    const n = prompt('楼层名称:');
+    if(!n || !n.trim()) return;
+    if(floorData[n.trim()]){ alert('楼层已存在'); return; }
+    await set(ref(db, cp(`floors/${n.trim()}`)), {});
+    switchFloor(n.trim());
+    showToast('楼层已添加');
+  };
+  floorTabsContainer.appendChild(addBtn);
+  currentFloorLabel.innerText = currentFloor || '';
+}
+function switchFloor(k){ currentFloor = k; clearSelection(); renderCurrentFloor(); renderDecorations(); renderFloorTabs(); renderStats(); updateStatsBar(); }
+
+// ========== 统计 ==========
+function updateStatsBar(){
+  const tables = floorData[currentFloor] || [];
+  const map = new Map();
+  tables.forEach(t=>{ if(!map.has(t.type)) map.set(t.type,{o:0,c:0}); const s=map.get(t.type); if(t.status==='open') s.o++; else s.c++; });
+  if(!map.size){ statsInline.innerHTML = '<div class="stats-item-inline">暂无桌子</div>'; return; }
+  let html = '';
+  for(const [code, s] of map){ html += `<div class="stats-item-inline"><div class="stats-numbers-inline"><span class="stats-open-inline">🟢 ${s.o}</span><span class="stats-closed-inline">⚫ ${s.c}</span></div><div class="stats-label-inline">${esc(code)}</div></div>`; }
+  statsInline.innerHTML = html;
+}
+function renderStats(){
+  const tables = floorData[currentFloor] || [];
+  const zones = new Map();
+  tables.forEach(t=>{ const z = t.zoneCode?.trim()||'未分配场区'; if(!zones.has(z)) zones.set(z,{t:[],w:0}); const g=zones.get(z); g.t.push(t); g.w += t.win||0; });
+  if(!zones.size){ statsContent.innerHTML = '<div style="text-align:center;padding:20px;">暂无数据</div>'; return; }
+  let html = '';
+  for(const [zone, g] of zones){
+    g.t.sort((a,b)=>{ if(a.status==='open' && b.status!=='open') return -1; if(a.status!=='open' && b.status==='open') return 1; const an=parseInt(a.id), bn=parseInt(b.id); return !isNaN(an)&&!isNaN(bn) ? an-bn : a.id.localeCompare(b.id); });
+    const wc = g.w>0?'win-positive':(g.w<0?'win-negative':'');
+    html += `<div class="zone-group"><div class="zone-header"><div class="zone-name">🏷️ ${esc(zone)}</div><div class="zone-total ${wc}">💰 ${formatWin(g.w)}</div></div><ul class="table-list-stats open">${g.t.map(t=>`<li><span class="table-id ${t.status==='open'?'table-id-open':'table-id-closed'}">🪑 ${esc(t.id)}</span><span class="table-win ${t.win>0?'win-positive':(t.win<0?'win-negative':'win-zero')}">${formatWin(t.win)}</span></li>`).join('')}</ul></div>`;
+  }
+  statsContent.innerHTML = html;
+  statsContent.querySelectorAll('.zone-header').forEach(h=>{ h.onclick = () => h.nextElementSibling.classList.toggle('open'); });
+}
+
+// ========== 桌型 ==========
+function refreshAllTypeSelects(){
+  newTableTypeSelect.innerHTML = TYPE_LIST.map(t => `<option value="${t}">${t} - ${TABLE_TYPES[t]?.name||t}</option>`).join('');
+  updateTableList();
+}
+async function addNewTableType(){
+  let code = newTypeCodeInput.value.trim().toUpperCase();
+  if(!code){ alert('请输入代码'); return; }
+  if(TABLE_TYPES[code]){ alert('已存在'); return; }
+  const name = newTypeNameInput.value.trim();
+  if(!name){ alert('请输入名称'); return; }
+  const emoji = newTypeEmojiInput.value.trim() || '🎲';
+  await set(ref(db, `customTypes/${code}`), { name, emoji, customIcon: newTypeTempIcon || null });
+  newTypeModal.style.display = 'none';
+  newTypeCodeInput.value = ''; newTypeNameInput.value = ''; newTypeEmojiInput.value = ''; newTypeTempIcon = null; newTypeIconPreview.innerHTML = '';
+  showToast('桌型已新增');
+}
+
+// ========== Excel ==========
+function importExcel(file){
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const wb = XLSX.read(new Uint8Array(e.target.result), { type:'array' });
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header:1, defval:'' });
+      if(rows.length<2){ alert('至少需要两行'); return; }
+      const h = rows[0].map(c => String(c).toLowerCase().trim());
+      let idC = -1, winC = -1, zoneC = -1, typeC = -1;
+      h.forEach((cell,i)=>{
+        if(cell.includes('桌号')||cell.includes('table')||cell.includes('id')) idC = i;
+        if(cell.includes('win')||cell.includes('营业额')||cell.includes('赢')) winC = i;
+        if(cell.includes('场区')||cell.includes('zone')) zoneC = i;
+        if(cell.includes('桌型')||cell.includes('type')) typeC = i;
+      });
+      if(idC === -1){ alert('未找到桌号列'); return; }
+      const upd = {};
+      let nWin=0, nZone=0, nType=0;
+      for(let i=1; i<rows.length; i++){
+        const r = rows[i];
+        const id = String(r[idC]||'').trim();
+        if(!id) continue;
+        let found = null, floorOf = null;
+        for(const f in floorData){ const t = floorData[f].find(x=>x.id===id); if(t){ found=t; floorOf=f; break; } }
+        if(!found){ continue; }
+        if(winC !== -1){ const v = parseFloat(r[winC]); if(!isNaN(v) && v !== found.win){ upd[cp(`floors/${floorOf}/${id}/win`)] = v; nWin++; } }
+        if(zoneC !== -1 && r[zoneC] !== undefined){ const z = String(r[zoneC]).trim(); if(z && z !== found.zoneCode){ upd[cp(`floors/${floorOf}/${id}/zoneCode`)] = z; nZone++; } }
+        if(typeC !== -1 && r[typeC] !== undefined){ const ty = String(r[typeC]).trim().toUpperCase(); if(ty && TYPE_LIST.includes(ty) && ty !== found.type){ upd[cp(`floors/${floorOf}/${id}/type`)] = ty; nType++; } }
+      }
+      if(Object.keys(upd).length){ batch(upd).then(()=>alert(`更新完成：营业额 ${nWin}、场区 ${nZone}、桌型 ${nType}`)); }
+      else alert('没有匹配到任何桌子');
+    } catch(err){ console.error(err); alert('Excel 解析失败'); }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ========== 加载存档 ==========
+async function loadArchive(file){
+  const text = await file.text();
+  const data = JSON.parse(text);
+  if(!data.floorData){ alert('无效存档'); return; }
+  if(!confirm('导入将覆盖当前娱乐场的所有数据，继续？')) return;
+  const upd = {};
+  upd[cp('floors')] = null; upd[cp('decorations')] = null; upd[cp('availableTables')] = null;
+  Object.keys(data.floorData).forEach(f => data.floorData[f].forEach(t=>{
+    upd[cp(`floors/${f}/${t.id}`)] = { x:t.x, y:t.y, status:t.status||'closed', type:t.type||'BA', zoneCode:t.zoneCode||'', customIcon:t.customIcon||null, angle:t.angle||0, win:t.win||0 };
+  }));
+  Object.keys(data.availableTables||{}).forEach(id => { upd[cp(`availableTables/${id}`)] = data.availableTables[id]; });
+  (data.decorElements||[]).forEach(d => { upd[cp(`decorations/${d.floor}/${d.id}`)] = { url:d.url, x:d.x, y:d.y, width:d.width, height:d.height, angle:d.angle }; });
+  await batch(upd);
+  showToast('存档已导入');
+}
+
+// ========== 数据绑定 ==========
+function rebuildLocalState(val){
+  const prevFloor = currentFloor;
+  const floors = val.floors || {}, decors = val.decorations || {}, avail = val.availableTables || {};
+  floorData = {}; availableTables = {}; decorElements = [];
+  Object.keys(floors).forEach(fn=>{
+    floorData[fn] = [];
+    const ts = floors[fn] || {};
+    Object.keys(ts).forEach(tid=>{
+      const t = ts[tid] || {};
+      floorData[fn].push({ id:tid, x:+t.x||0, y:+t.y||0, status:t.status||'closed', type:t.type||'BA', zoneCode:t.zoneCode||'', customIcon:t.customIcon||null, angle:+t.angle||0, win:+t.win||0 });
+    });
+  });
+  Object.keys(avail).forEach(tid=>{
+    const t = avail[tid] || {};
+    availableTables[tid] = { type:t.type||'BA', zoneCode:t.zoneCode||'', customIcon:t.customIcon||null, win:+t.win||0 };
+  });
+  Object.keys(decors).forEach(fn=>{
+    Object.keys(decors[fn]||{}).forEach(did=>{
+      const d = decors[fn][did] || {};
+      decorElements.push({ id:+did, floor:fn, url:d.url, x:+d.x||0, y:+d.y||0, width:+d.width||120, height:+d.height||120, angle:+d.angle||0 });
+    });
+  });
+  if(prevFloor && floorData[prevFloor]) currentFloor = prevFloor;
+  else currentFloor = Object.keys(floorData)[0] || '1F';
+  if(!floorData[currentFloor]) floorData[currentFloor] = [];
+}
+function bindCasinoData(id){
+  if(casinoDataUnsub) casinoDataUnsub();
+  casinoDataUnsub = onValue(ref(db, 'casinos/'+id), snap => {
+    const val = snap.val() || {};
+    rebuildLocalState(val);
+    captureState();
+    applyZoom(); renderFloorTabs(); renderCurrentFloor(); renderDecorations(); updateTableList(); renderStats(); updateStatsBar();
+  });
+  if(bgImageUnsub) bgImageUnsub();
+  bgImageUnsub = onValue(ref(db, 'casinos/'+id+'/bgImage'), snap => {
+    const u = snap.val();
+    if(u){ bgImage.src = u; bgImage.style.display = 'block'; }
+    else { bgImage.src = ''; bgImage.style.display = 'none'; }
+  });
+}
+
+// ========== 娱乐场列表 ==========
+function bindCasinoList(){
+  if(casinoListUnsub) casinoListUnsub();
+  casinoListUnsub = onValue(ref(db, 'casinos'), snap => {
+    const data = snap.val() || {};
+    const ids = Object.keys(data);
+    if(!ids.length){ casinoListDiv.innerHTML = '<div class="casino-empty">尚无娱乐场，点击下方「新增娱乐场」开始</div>'; return; }
+    ids.sort((a,b)=>(data[b].createdAt||0)-(data[a].createdAt||0));
+    casinoListDiv.innerHTML = ids.map(id => `
+      <div class="casino-item" data-id="${id}">
+        <div class="casino-info">
+          <div class="casino-name">🏢 ${esc(data[id].name||id)}</div>
+          <div class="casino-meta">${data[id].createdAt ? new Date(data[id].createdAt).toLocaleString() : ''}</div>
+        </div>
+        <button class="casino-del" data-id="${id}">🗑️ 删除</button>
+      </div>
+    `).join('');
+    casinoListDiv.querySelectorAll('.casino-item').forEach(el=>{
+      el.onclick = e => { if(e.target.closest('.casino-del')) return; enterCasino(el.dataset.id); };
+    });
+    casinoListDiv.querySelectorAll('.casino-del').forEach(btn=>{
+      btn.onclick = async e => {
+        e.stopPropagation();
+        const id = btn.dataset.id;
+        if(!confirm(`确定删除「${data[id].name||id}」？此操作不可恢复。`)) return;
+        await remove(ref(db, 'casinos/'+id));
+        showToast('已删除');
+      };
+    });
+  });
+}
+async function enterCasino(id){
+  currentCasinoId = id;
+  if(casinoListUnsub){ casinoListUnsub(); casinoListUnsub = null; }
+  casinoOverlay.style.display = 'none';
+  appDiv.style.display = 'flex';
+  try { const nm = (await get(ref(db, 'casinos/'+id+'/name'))).val(); $('currentCasinoLabel').textContent = nm||id; } catch(e){ $('currentCasinoLabel').textContent = id; }
+  if(!window.__appInited){ initUI(); initDropTarget(); initRotatePanel(); refreshAllTypeSelects(); window.__appInited = true; }
+  bindCasinoData(id);
+}
+
+// ========== UI 绑定 ==========
+function initCollapsibleTools(){
+  const h = $('collapsibleHeader'), c = $('collapsibleContent'), ic = $('collapseIcon');
+  if(!h) return;
+  h.onclick = () => { c.classList.toggle('open'); ic.textContent = c.classList.contains('open') ? '▼' : '▶'; };
+  c.classList.add('open');
+}
+function initUI(){
+  $('undoBtn').onclick = undo;
+  $('clearBtn').onclick = async () => {
+    const pwd = prompt('⚠️ 清空需要密码：');
+    if(pwd === null) return;
+    if(pwd !== '@Abcd1234'){ alert('密码错误'); return; }
+    if(!confirm('确认清空当前楼层所有数据？')) return;
+    const upd = {};
+    upd[cp(`floors/${currentFloor}`)] = null;
+    upd[cp(`decorations/${currentFloor}`)] = null;
+    await batch(upd);
+    showToast('已清空');
+  };
+  $('zoomIn').onclick = () => setZoom(currentZoom+0.1);
+  $('zoomOut').onclick = () => setZoom(currentZoom-0.1);
+  $('zoomReset').onclick = () => setZoom(1.0);
+  $('saveBtn').onclick = () => {
+    const data = { floorData, availableTables, decorElements, currentFloor, version: '3.0' };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'casino_plan.json'; a.click();
+    URL.revokeObjectURL(a.href);
+    showToast('已导出 casino_plan.json');
+  };
+  $('toggleSidebarBtn').onclick = () => $('sidebar').classList.toggle('collapsed');
+  $('excelImportBtn').onclick = () => { const inp = document.createElement('input'); inp.type='file'; inp.accept='.xlsx,.xls,.csv'; inp.onchange = e => { if(e.target.files[0]) importExcel(e.target.files[0]); }; inp.click(); };
+  $('loadArchiveBtn').onclick = () => { const inp = document.createElement('input'); inp.type='file'; inp.accept='.json'; inp.onchange = e => { if(e.target.files[0]) loadArchive(e.target.files[0]); }; inp.click(); };
+  $('uploadDecorBtn').onclick = uploadDecor;
+  $('toggleStatsBtn').onclick = () => statsSidebar.classList.toggle('open');
+  $('closeStatsSidebar').onclick = () => statsSidebar.classList.remove('open');
+  canvasAreaDiv.addEventListener('click', e => { if(e.target===canvasAreaDiv || e.target===floorPlanDiv) clearSelection(); });
+  $('alignLeft').onclick = alignLeft;
+  $('alignRight').onclick = alignRight;
+  $('alignCenterH').onclick = alignCenterH;
+  $('alignCenterV').onclick = alignCenterV;
+  $('distributeHoriz').onclick = distributeH;
+  $('distributeVert').onclick = distributeV;
+  $('bgUploadBtn').onclick = () => {
+    const inp = document.createElement('input'); inp.type='file'; inp.accept='image/*';
+    inp.onchange = e => {
+      const f = e.target.files[0]; if(!f) return;
+      const r = new FileReader();
+      r.onload = ev => { bgImage.src = ev.target.result; bgImage.style.display = 'block'; update(ref(db, cp('bgImage')), ev.target.result); };
+      r.readAsDataURL(f);
+    };
+    inp.click();
+  };
+  $('bgDeleteBtn').onclick = () => { bgImage.src=''; bgImage.style.display='none'; remove(ref(db, cp('bgImage'))); };
+  $('addTableBtn').onclick = () => { addTableModal.style.display='flex'; newTableIdInput.value=''; newZoneCodeInput.value=''; tempCustomIcon=null; newIconPreview.innerHTML=''; refreshAllTypeSelects(); };
+  $('confirmAddTable').onclick = addNewTable;
+  $('cancelAddTable').onclick = () => addTableModal.style.display='none';
+  $('uploadIconBtn').onclick = () => iconFileInput.click();
+  $('clearIconBtn').onclick = () => { tempCustomIcon=null; newIconPreview.innerHTML=''; };
+  iconFileInput.onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { tempCustomIcon = ev.target.result; newIconPreview.innerHTML = `<img src="${tempCustomIcon}" style="max-width:100%;max-height:100%;">`; }; r.readAsDataURL(f); };
+  $('newTypeBtn').onclick = () => newTypeModal.style.display='flex';
+  $('newTypeUploadIconBtn').onclick = () => newTypeIconFile.click();
+  newTypeIconFile.onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { newTypeTempIcon = ev.target.result; newTypeIconPreview.innerHTML = `<img src="${newTypeTempIcon}" style="max-width:100%;max-height:100%;">`; }; r.readAsDataURL(f); };
+  $('confirmNewType').onclick = addNewTableType;
+  $('cancelNewType').onclick = () => newTypeModal.style.display='none';
+  window.onclick = e => { if(e.target===addTableModal) addTableModal.style.display='none'; if(e.target===newTypeModal) newTypeModal.style.display='none'; };
+  initCollapsibleTools();
+  $('switchCasinoBtn').onclick = () => {
+    if(casinoDataUnsub){ casinoDataUnsub(); casinoDataUnsub = null; }
+    if(bgImageUnsub){ bgImageUnsub(); bgImageUnsub = null; }
+    appDiv.style.display = 'none';
+    casinoOverlay.style.display = 'flex';
+    bindCasinoList();
+  };
+}
+
+$('createCasinoBtn').onclick = async () => {
+  const name = prompt('娱乐场名称：'); if(!name || !name.trim()) return;
+  const newRef = ref(db, 'casinos/' + cid());
+  await set(newRef, { name: name.trim(), createdAt: Date.now(), createdBy: 'admin' });
+  showToast('娱乐场已新增');
+};
+
+// 全局桌型监听
+onValue(ref(db, 'customTypes'), snap => {
+  const val = snap.val() || {};
+  customTypes = {};
+  Object.keys(val).forEach(code => {
+    if(!DEFAULT_TABLE_TYPES[code]){ TABLE_TYPES[code] = val[code]; customTypes[code] = val[code]; }
+  });
+  TYPE_LIST = Object.keys(TABLE_TYPES);
+  refreshAllTypeSelects();
+});
+</script>
+</body>
+</html>
