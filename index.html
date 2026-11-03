@@ -266,9 +266,31 @@ body{margin:0;background:#1a2a3a;font-family:'Segoe UI',system-ui,sans-serif;ove
 </div>
 
 <div id="rotatePanel" class="rotate-panel"><h4>🔄 调整旋转角度</h4><div class="slider-container"><input type="range" id="angleSlider" min="0" max="360" step="1" value="0"><span class="angle-value" id="angleValue">0°</span></div><div class="preset-angles"></div><button class="close-panel" id="closeRotatePanel">关闭</button></div>
-<div id="addTableModal" class="modal"><div class="modal-content"><h3>添加新桌子</h3><input type="text" id="newTableId" placeholder="桌号"><input type="text" id="newZoneCode" placeholder="场区代号"><select id="newTableType"></select><div class="icon-upload-preview"><div class="icon-preview-box" id="newIconPreview"></div><button type="button" id="uploadIconBtn" style="background:#2c3e50;">📁 上传图标</button><button type="button" id="clearIconBtn" style="background:#c0392b;">✖ 清除</button></div><input type="file" id="iconFileInput" accept="image/*" style="display:none;"><button id="confirmAddTable">确认添加</button><button id="cancelAddTable">取消</button></div></div>
 
-<!-- 新增桌型 Modal 優化：加入預設圖示選擇 -->
+<!-- 添加新桌子 Modal (新增了预设图标选择) -->
+<div id="addTableModal" class="modal">
+  <div class="modal-content">
+    <h3>添加新桌子</h3>
+    <input type="text" id="newTableId" placeholder="桌号">
+    <input type="text" id="newZoneCode" placeholder="场区代号">
+    <select id="newTableType"></select>
+    
+    <!-- 新增：预设图标选择网格 -->
+    <div style="margin-top: 10px; font-size: 0.85rem; color:#aaa;">选择预设图标：</div>
+    <div class="preset-icons-grid" id="tablePresetIconsGrid"></div>
+
+    <div class="icon-upload-preview">
+      <div class="icon-preview-box" id="newIconPreview"></div>
+      <button type="button" id="uploadIconBtn" style="background:#2c3e50;">📁 上传图标</button>
+      <button type="button" id="clearIconBtn" style="background:#c0392b;">✖ 清除</button>
+    </div>
+    <input type="file" id="iconFileInput" accept="image/*" style="display:none;">
+    <button id="confirmAddTable">确认添加</button>
+    <button id="cancelAddTable">取消</button>
+  </div>
+</div>
+
+<!-- 新增桌型 Modal -->
 <div id="newTypeModal" class="modal">
   <div class="modal-content">
     <h3>新增桌型</h3>
@@ -347,6 +369,7 @@ let selectedTableIds = new Set();
 let currentZoom = 1.0, currentInfoPanel = null, currentRotatingTable = null, rotateTimeout = null;
 let nextDecorId = 100;
 let tempCustomIcon = null, newTypeTempIcon = null, selectedPresetIcon = null;
+let selectedTablePresetIcon = null; // 新增：记录添加桌子时选中的预设图标
 let casinoListUnsub = null, casinoDataUnsub = null, bgImageUnsub = null;
 let historyStack = [], historyIndex = -1;
 const MAX_HISTORY = 20;
@@ -555,11 +578,14 @@ async function addNewTable(){
   await set(ref(db, cp(`availableTables/${id}`)), {
     type: newTableTypeSelect.value,
     zoneCode: newZoneCodeInput.value.trim(),
-    customIcon: tempCustomIcon || null,
+    customIcon: tempCustomIcon || selectedTablePresetIcon || null,
     win: 0
   });
   addTableModal.style.display = 'none';
-  newTableIdInput.value = ''; newZoneCodeInput.value = ''; tempCustomIcon = null; newIconPreview.innerHTML = '';
+  newTableIdInput.value = ''; newZoneCodeInput.value = ''; 
+  tempCustomIcon = null; 
+  selectedTablePresetIcon = null;
+  newIconPreview.innerHTML = '';
   showToast('桌子已添加');
 }
 
@@ -923,12 +949,32 @@ function initPresetIconsGrid() {
     div.className = 'preset-icon-item';
     div.innerHTML = `<img src="${PRESET_ICONS[key]}">`;
     div.onclick = () => {
-      document.querySelectorAll('.preset-icon-item').forEach(el => el.classList.remove('selected'));
+      document.querySelectorAll('#presetIconsGrid .preset-icon-item').forEach(el => el.classList.remove('selected'));
       div.classList.add('selected');
       selectedPresetIcon = PRESET_ICONS[key];
       newTypeTempIcon = null;
       newTypeIconPreview.innerHTML = '';
       newTypeIconPreview.style.display = 'none';
+    };
+    grid.appendChild(div);
+  });
+}
+
+// 新增：添加桌子用的预设图标网格初始化
+function initTablePresetIconsGrid() {
+  const grid = $('tablePresetIconsGrid');
+  if(!grid) return;
+  grid.innerHTML = '';
+  Object.keys(PRESET_ICONS).forEach(key => {
+    const div = document.createElement('div');
+    div.className = 'preset-icon-item';
+    div.innerHTML = `<img src="${PRESET_ICONS[key]}">`;
+    div.onclick = () => {
+      document.querySelectorAll('#tablePresetIconsGrid .preset-icon-item').forEach(el => el.classList.remove('selected'));
+      div.classList.add('selected');
+      selectedTablePresetIcon = PRESET_ICONS[key];
+      tempCustomIcon = null;
+      newIconPreview.innerHTML = `<img src="${selectedTablePresetIcon}" style="max-width:100%;max-height:100%;">`;
     };
     grid.appendChild(div);
   });
@@ -1142,19 +1188,46 @@ function initUI(){
     inp.click();
   };
   $('bgDeleteBtn').onclick = () => { bgImage.src=''; bgImage.style.display='none'; remove(ref(db, cp('bgImage'))); };
-  $('addTableBtn').onclick = () => { addTableModal.style.display='flex'; newTableIdInput.value=''; newZoneCodeInput.value=''; tempCustomIcon=null; newIconPreview.innerHTML=''; refreshAllTypeSelects(); };
+  
+  // 添加桌子相关事件
+  $('addTableBtn').onclick = () => { 
+    addTableModal.style.display='flex'; 
+    newTableIdInput.value=''; 
+    newZoneCodeInput.value=''; 
+    tempCustomIcon=null; 
+    selectedTablePresetIcon = null;
+    newIconPreview.innerHTML=''; 
+    document.querySelectorAll('#tablePresetIconsGrid .preset-icon-item').forEach(el => el.classList.remove('selected'));
+    initTablePresetIconsGrid();
+    refreshAllTypeSelects(); 
+  };
   $('confirmAddTable').onclick = addNewTable;
   $('cancelAddTable').onclick = () => addTableModal.style.display='none';
   $('uploadIconBtn').onclick = () => iconFileInput.click();
-  $('clearIconBtn').onclick = () => { tempCustomIcon=null; newIconPreview.innerHTML=''; };
-  iconFileInput.onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { tempCustomIcon = ev.target.result; newIconPreview.innerHTML = `<img src="${tempCustomIcon}" style="max-width:100%;max-height:100%;">`; }; r.readAsDataURL(f); };
+  $('clearIconBtn').onclick = () => { 
+    tempCustomIcon=null; 
+    selectedTablePresetIcon = null;
+    newIconPreview.innerHTML=''; 
+    document.querySelectorAll('#tablePresetIconsGrid .preset-icon-item').forEach(el => el.classList.remove('selected'));
+  };
+  iconFileInput.onchange = e => { 
+    const f = e.target.files[0]; if(!f) return; 
+    const r = new FileReader(); 
+    r.onload = ev => { 
+      tempCustomIcon = ev.target.result; 
+      selectedTablePresetIcon = null;
+      document.querySelectorAll('#tablePresetIconsGrid .preset-icon-item').forEach(el => el.classList.remove('selected'));
+      newIconPreview.innerHTML = `<img src="${tempCustomIcon}" style="max-width:100%;max-height:100%;">`; 
+    }; 
+    r.readAsDataURL(f); 
+  };
   
   // 初始化预设图标网格
   initPresetIconsGrid();
 
   $('newTypeBtn').onclick = () => { 
       newTypeModal.style.display='flex'; 
-      document.querySelectorAll('.preset-icon-item').forEach(el => el.classList.remove('selected'));
+      document.querySelectorAll('#presetIconsGrid .preset-icon-item').forEach(el => el.classList.remove('selected'));
       selectedPresetIcon = null;
   };
   
@@ -1166,7 +1239,7 @@ function initUI(){
       newTypeTempIcon = ev.target.result; 
       newTypeIconPreview.innerHTML = `<img src="${newTypeTempIcon}" style="max-width:100%;max-height:100%;">`; 
       newTypeIconPreview.style.display = 'flex';
-      document.querySelectorAll('.preset-icon-item').forEach(el => el.classList.remove('selected'));
+      document.querySelectorAll('#presetIconsGrid .preset-icon-item').forEach(el => el.classList.remove('selected'));
       selectedPresetIcon = null;
     }; 
     r.readAsDataURL(f); 
